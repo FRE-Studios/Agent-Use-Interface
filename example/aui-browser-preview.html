@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUI Browser Preview — aui.xml + aui.css</title>
+<style>
+  /* 
+   * This HTML simulates how a browser renders aui.xml + aui.css.
+   * The CSS below is identical to the reference aui.css, 
+   * adapted from XML element selectors to class selectors.
+   */
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f5f5f5;
+    min-height: 100vh;
+  }
+
+  /* Browser chrome simulation */
+  .browser-frame {
+    max-width: 880px;
+    margin: 2rem auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
+    background: #fff;
+  }
+
+  .browser-bar {
+    background: #e8e8e8;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid #d4d4d4;
+  }
+
+  .browser-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .browser-dots span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: block;
+  }
+  .browser-dots span:nth-child(1) { background: #ff5f57; }
+  .browser-dots span:nth-child(2) { background: #febc2e; }
+  .browser-dots span:nth-child(3) { background: #28c840; }
+
+  .browser-url {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #d4d4d4;
+    border-radius: 5px;
+    padding: 0.35rem 0.75rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .browser-url .lock {
+    color: #28c840;
+    font-size: 11px;
+  }
+
+  .browser-content {
+    background: #ffffff;
+    min-height: 600px;
+  }
+
+  /* ════════════════════════════════════════════════
+     AUI CSS — identical logic to the reference aui.css
+     (class selectors instead of XML element selectors)
+     ════════════════════════════════════════════════ */
+
+  .aui {
+    display: block;
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 3rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1a1a1a;
+  }
+
+  .aui > .aui-name {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .aui > .aui-origin {
+    display: block;
+    font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+
+  .aui > .aui-description {
+    display: block;
+    color: #374151;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* Metadata */
+  .aui-metadata {
+    display: block;
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 6px;
+  }
+
+  .aui-metadata > div {
+    margin-bottom: 0.25rem;
+  }
+
+  .aui-platforms {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .aui-platform {
+    display: inline-block;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .aui-meta-label {
+    font-weight: 600;
+  }
+
+  /* Tasks Container */
+  .aui-tasks-heading {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  /* Individual Task */
+  .aui-task {
+    display: block;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+  }
+
+  .aui-task > .aui-task-name {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .aui-task > .aui-task-description {
+    display: block;
+    color: #4b5563;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .aui-base-path {
+    display: inline-block;
+    font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    background: #f3f4f6;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    color: #1f2937;
+    margin-bottom: 1rem;
+  }
+
+  /* Tags */
+  .aui-tags {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .aui-tag {
+    display: inline-block;
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.45rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* Parameters */
+  .aui-parameters-heading {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .aui-param {
+    display: block;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #f9fafb;
+    border-radius: 4px;
+    border-left: 3px solid #d1d5db;
+  }
+
+  .aui-param.required {
+    border-left-color: #2563eb;
+  }
+
+  .aui-param-header {
+    font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .aui-param-type {
+    font-weight: 400;
+    color: #6b7280;
+    font-size: 0.75rem;
+    margin-left: 0.35rem;
+  }
+
+  .aui-param-required-badge {
+    color: #2563eb;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 0.35rem;
+  }
+
+  .aui-param > .aui-param-desc {
+    display: block;
+    font-size: 0.85rem;
+    color: #4b5563;
+    margin-top: 0.25rem;
+  }
+
+  .aui-param-detail {
+    display: inline-block;
+    font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+    margin-right: 0.75rem;
+  }
+
+  .aui-param-detail .label {
+    font-weight: 600;
+  }
+
+  /* Enum Options */
+  .aui-options {
+    margin-top: 0.5rem;
+    padding-left: 0.75rem;
+  }
+
+  .aui-option {
+    display: block;
+    font-size: 0.8rem;
+    color: #4b5563;
+    padding: 0.2rem 0;
+  }
+
+  .aui-option-value {
+    font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 600;
+    color: #1f2937;
+    margin-right: 0.5rem;
+  }
+
+  /* Examples */
+  .aui-examples-heading {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .aui-example {
+    display: block;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #f0fdf4;
+    border-radius: 4px;
+    border-left: 3px solid #22c55e;
+  }
+
+  .aui-intent {
+    display: block;
+    font-size: 0.85rem;
+    font-style: italic;
+    color: #374151;
+  }
+
+  .aui-example-url {
+    display: block;
+    font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: #15803d;
+    margin-top: 0.25rem;
+    word-break: break-all;
+  }
+
+  /* Watermark */
+  .aui-watermark {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #d1d5db;
+    margin-top: 2rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="browser-frame">
+  <div class="browser-bar">
+    <div class="browser-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="browser-url">
+      <span class="lock">&#x1f512;</span>
+      shop.example.com/.well-known/aui.xml
+    </div>
+  </div>
+
+  <div class="browser-content">
+    <div class="aui">
+
+      <div class="aui-name">Example Shop</div>
+      <div class="aui-origin">https://shop.example.com</div>
+      <div class="aui-description">
+        An online store for electronics and accessories. Use these tasks to help
+        users search for products, apply filters, share items, and configure wishlists.
+      </div>
+
+      <!-- Metadata -->
+      <div class="aui-metadata">
+        <div class="aui-platforms">
+          <span class="aui-platform">ios</span>
+          <span class="aui-platform">android</span>
+          <span class="aui-platform">web</span>
+        </div>
+        <div><span class="aui-meta-label">Contact: </span>aui@example.com</div>
+        <div><span class="aui-meta-label">Docs: </span>https://docs.example.com/universal-links</div>
+      </div>
+
+      <!-- Tasks -->
+      <div class="aui-tasks-heading">Tasks</div>
+
+      <!-- Task 1: Product Search -->
+      <div class="aui-task">
+        <div class="aui-task-name">Search Products</div>
+        <div class="aui-task-description">
+          Search the product catalog. Use this when a user wants to find, browse,
+          or discover products. The URL opens the search results page with filters
+          pre-applied. On iOS and Android, this opens the native app search experience.
+        </div>
+        <div class="aui-base-path">/search</div>
+        <div class="aui-tags">
+          <span class="aui-tag">search</span>
+          <span class="aui-tag">discovery</span>
+        </div>
+
+        <div class="aui-parameters-heading">Parameters</div>
+
+        <div class="aui-param required">
+          <div class="aui-param-header">
+            q <span class="aui-param-type">string</span>
+            <span class="aui-param-required-badge">required</span>
+          </div>
+          <div class="aui-param-desc">
+            The search query. Should reflect the user's intent in natural
+            product-search terms (e.g., 'wireless earbuds noise cancelling').
+          </div>
+          <div class="aui-param-detail"><span class="label">example: </span>wireless earbuds</div>
+        </div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            category <span class="aui-param-type">enum</span>
+          </div>
+          <div class="aui-param-desc">Filter results to a specific product category.</div>
+          <div class="aui-options">
+            <div class="aui-option"><span class="aui-option-value">electronics</span> Phones, tablets, laptops, and other devices.</div>
+            <div class="aui-option"><span class="aui-option-value">accessories</span> Cases, cables, chargers, and add-ons.</div>
+            <div class="aui-option"><span class="aui-option-value">audio</span> Headphones, earbuds, speakers, and microphones.</div>
+            <div class="aui-option"><span class="aui-option-value">wearables</span> Smartwatches, fitness trackers, and AR glasses.</div>
+            <div class="aui-option"><span class="aui-option-value">home</span> Smart home devices, appliances, and IoT.</div>
+          </div>
+        </div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            price_min <span class="aui-param-type">number</span>
+          </div>
+          <div class="aui-param-desc">Minimum price in USD. Use when the user specifies a budget floor.</div>
+          <div class="aui-param-detail"><span class="label">min: </span>0</div>
+        </div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            price_max <span class="aui-param-type">number</span>
+          </div>
+          <div class="aui-param-desc">Maximum price in USD. Use when the user specifies a budget ceiling.</div>
+          <div class="aui-param-detail"><span class="label">min: </span>0</div>
+        </div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            sort <span class="aui-param-type">enum</span>
+          </div>
+          <div class="aui-param-desc">How to sort results.</div>
+          <div class="aui-param-detail"><span class="label">default: </span>relevance</div>
+          <div class="aui-options">
+            <div class="aui-option"><span class="aui-option-value">relevance</span> Best match for the query (default).</div>
+            <div class="aui-option"><span class="aui-option-value">price_asc</span> Cheapest first. Use when user wants deals or is budget-conscious.</div>
+            <div class="aui-option"><span class="aui-option-value">price_desc</span> Most expensive first. Use when user wants premium options.</div>
+            <div class="aui-option"><span class="aui-option-value">rating</span> Highest rated first. Use when user wants the best-reviewed items.</div>
+            <div class="aui-option"><span class="aui-option-value">newest</span> Most recently added. Use when user wants the latest products.</div>
+          </div>
+        </div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            in_stock <span class="aui-param-type">boolean</span>
+          </div>
+          <div class="aui-param-desc">
+            Only show items currently in stock. Set to true unless the user
+            explicitly wants to see out-of-stock items.
+          </div>
+          <div class="aui-param-detail"><span class="label">default: </span>true</div>
+        </div>
+
+        <div class="aui-examples-heading">Examples</div>
+
+        <div class="aui-example">
+          <div class="aui-intent">&ldquo;Find me some good noise cancelling headphones under $200&rdquo;</div>
+          <div class="aui-example-url">https://shop.example.com/search?q=noise+cancelling+headphones&amp;category=audio&amp;price_max=200&amp;sort=rating&amp;in_stock=true</div>
+        </div>
+
+        <div class="aui-example">
+          <div class="aui-intent">&ldquo;What's new in smart home devices?&rdquo;</div>
+          <div class="aui-example-url">https://shop.example.com/search?q=smart+home&amp;category=home&amp;sort=newest&amp;in_stock=true</div>
+        </div>
+      </div>
+
+      <!-- Task 2: Share Product -->
+      <div class="aui-task">
+        <div class="aui-task-name">Share Product</div>
+        <div class="aui-task-description">
+          Generate a shareable link to a specific product. Use this when a user
+          wants to send a product to someone or save it for later. The link opens
+          the product detail page.
+        </div>
+        <div class="aui-base-path">/product</div>
+        <div class="aui-tags">
+          <span class="aui-tag">share</span>
+          <span class="aui-tag">social</span>
+        </div>
+
+        <div class="aui-parameters-heading">Parameters</div>
+
+        <div class="aui-param required">
+          <div class="aui-param-header">
+            sku <span class="aui-param-type">string</span>
+            <span class="aui-param-required-badge">required</span>
+          </div>
+          <div class="aui-param-desc">
+            The product SKU. This must be a known product identifier. If the
+            agent doesn't have the SKU, use the product-search task first.
+          </div>
+          <div class="aui-param-detail"><span class="label">pattern: </span>^[A-Z0-9\-]{6,20}$</div>
+          <div class="aui-param-detail"><span class="label">example: </span>WH-1000XM5</div>
+        </div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            ref <span class="aui-param-type">string</span>
+          </div>
+          <div class="aui-param-desc">
+            Attribution source. Set to 'agent' to indicate the link was
+            constructed by an AI agent.
+          </div>
+          <div class="aui-param-detail"><span class="label">default: </span>agent</div>
+        </div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            utm_campaign <span class="aui-param-type">string</span>
+          </div>
+          <div class="aui-param-desc">Optional campaign tag for tracking.</div>
+        </div>
+
+        <div class="aui-examples-heading">Examples</div>
+
+        <div class="aui-example">
+          <div class="aui-intent">&ldquo;Send me a link to the Sony WH-1000XM5&rdquo;</div>
+          <div class="aui-example-url">https://shop.example.com/product?sku=WH-1000XM5&amp;ref=agent</div>
+        </div>
+      </div>
+
+      <!-- Task 3: Configure Wishlist -->
+      <div class="aui-task">
+        <div class="aui-task-name">Configure Wishlist View</div>
+        <div class="aui-task-description">
+          Open the user's wishlist with specific display settings. Use this when
+          a user wants to review their saved items in a particular order or
+          filtered view.
+        </div>
+        <div class="aui-base-path">/wishlist</div>
+        <div class="aui-tags">
+          <span class="aui-tag">personalization</span>
+        </div>
+
+        <div class="aui-parameters-heading">Parameters</div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            sort <span class="aui-param-type">enum</span>
+          </div>
+          <div class="aui-param-desc">How to sort wishlist items.</div>
+          <div class="aui-param-detail"><span class="label">default: </span>date_added</div>
+          <div class="aui-options">
+            <div class="aui-option"><span class="aui-option-value">date_added</span> Most recently saved first (default).</div>
+            <div class="aui-option"><span class="aui-option-value">price_asc</span> Cheapest first.</div>
+            <div class="aui-option"><span class="aui-option-value">price_desc</span> Most expensive first.</div>
+            <div class="aui-option"><span class="aui-option-value">price_drop</span> Largest price drop first. Use when user is bargain hunting.</div>
+          </div>
+        </div>
+
+        <div class="aui-param">
+          <div class="aui-param-header">
+            notify_drops <span class="aui-param-type">boolean</span>
+          </div>
+          <div class="aui-param-desc">
+            If true, enables price drop notifications for all wishlist items.
+          </div>
+          <div class="aui-param-detail"><span class="label">default: </span>false</div>
+        </div>
+
+        <div class="aui-examples-heading">Examples</div>
+
+        <div class="aui-example">
+          <div class="aui-intent">&ldquo;Show me my wishlist sorted by biggest price drops&rdquo;</div>
+          <div class="aui-example-url">https://shop.example.com/wishlist?sort=price_drop&amp;notify_drops=true</div>
+        </div>
+      </div>
+
+      <div class="aui-watermark">Agent Use Interface v0.1</div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
