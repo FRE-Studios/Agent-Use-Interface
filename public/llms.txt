@@ -4,21 +4,30 @@
 
 ## XML Boilerplate
 
-Every `aui.xml` starts with:
+Use this minimal required boilerplate:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/css" href="aui.css"?>
+<aui xmlns="https://agentuseinterface.org/schema/0.1" version="0.1">
+  ...
+</aui>
+```
+
+Optional but recommended for validator/tooling compatibility:
+
+```xml
 <aui
   xmlns="https://agentuseinterface.org/schema/0.1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="https://agentuseinterface.org/schema/0.1 https://agentuseinterface.org/schema/0.1/aui.xsd"
   version="0.1">
-  ...
-</aui>
 ```
 
-The `<?xml-stylesheet?>` line is optional. Include it to make the XML human-readable in browsers.
+Optional for browser readability (must be the first line after the XML declaration):
+
+```xml
+<?xml-stylesheet type="text/css" href="aui.css"?>
+```
 
 ## Element Reference
 
@@ -318,198 +327,8 @@ Detail file boilerplate:
 
 ## XSD
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema
-  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="https://agentuseinterface.org/schema/0.1"
-  xmlns="https://agentuseinterface.org/schema/0.1"
-  elementFormDefault="qualified"
-  attributeFormDefault="unqualified">
+Use canonical schema assets (do not rely on an inlined copy):
 
-  <xs:simpleType name="versionType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="0.1"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="nonEmptyString">
-    <xs:restriction base="xs:string">
-      <xs:minLength value="1"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="originType">
-    <xs:restriction base="xs:string">
-      <xs:pattern value="https://[^/?#]+(:[0-9]+)?"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="taskIdType">
-    <xs:restriction base="xs:string">
-      <xs:pattern value="[a-z0-9]+(-[a-z0-9]+)*"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="outputType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="display"/>
-      <xs:enumeration value="background"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="basePathType">
-    <xs:restriction base="xs:string">
-      <xs:pattern value="/[^?#]*"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="paramTypeType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="string"/>
-      <xs:enumeration value="number"/>
-      <xs:enumeration value="integer"/>
-      <xs:enumeration value="boolean"/>
-      <xs:enumeration value="enum"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="queryKeyType">
-    <xs:restriction base="xs:string">
-      <xs:pattern value="[A-Za-z0-9._~-]+"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="platformType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="ios"/>
-      <xs:enumeration value="android"/>
-      <xs:enumeration value="web"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:element name="aui" type="auiType">
-    <xs:unique name="uniqueTaskId">
-      <xs:selector xpath="task:tasks/task:task" xmlns:task="https://agentuseinterface.org/schema/0.1"/>
-      <xs:field xpath="@id"/>
-    </xs:unique>
-  </xs:element>
-
-  <xs:complexType name="auiType">
-    <xs:all>
-      <xs:element name="origin" type="originType"/>
-      <xs:element name="name" type="nonEmptyString"/>
-      <xs:element name="description" type="nonEmptyString"/>
-      <xs:element name="metadata" type="metadataType" minOccurs="0"/>
-      <xs:element name="tasks" type="tasksType"/>
-    </xs:all>
-    <xs:attribute name="version" type="versionType" use="required"/>
-  </xs:complexType>
-
-  <xs:complexType name="metadataType">
-    <xs:all>
-      <xs:element name="logo" type="xs:anyURI" minOccurs="0"/>
-      <xs:element name="contact" type="xs:string" minOccurs="0"/>
-      <xs:element name="docs" type="xs:anyURI" minOccurs="0"/>
-      <xs:element name="platforms" type="platformsType" minOccurs="0"/>
-    </xs:all>
-  </xs:complexType>
-
-  <xs:complexType name="platformsType">
-    <xs:sequence>
-      <xs:element name="platform" type="platformType" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="tasksType">
-    <xs:sequence>
-      <xs:element name="task" type="taskType" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="taskType">
-    <xs:all>
-      <xs:element name="name" type="nonEmptyString"/>
-      <xs:element name="description" type="nonEmptyString"/>
-      <xs:element name="base-path" type="basePathType" minOccurs="0"/>
-      <xs:element name="tags" type="tagsType" minOccurs="0"/>
-      <xs:element name="parameters" type="parametersType" minOccurs="0"/>
-      <xs:element name="examples" type="examplesType" minOccurs="0"/>
-    </xs:all>
-    <xs:attribute name="id" type="taskIdType" use="required"/>
-    <xs:attribute name="output" type="outputType" use="optional" default="display"/>
-    <xs:attribute name="href" type="xs:anyURI" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="auiTaskType">
-    <xs:all>
-      <xs:element name="name" type="nonEmptyString"/>
-      <xs:element name="description" type="nonEmptyString"/>
-      <xs:element name="base-path" type="basePathType"/>
-      <xs:element name="tags" type="tagsType" minOccurs="0"/>
-      <xs:element name="parameters" type="parametersType"/>
-      <xs:element name="examples" type="examplesType" minOccurs="0"/>
-    </xs:all>
-    <xs:attribute name="id" type="taskIdType" use="required"/>
-    <xs:attribute name="output" type="outputType" use="optional" default="display"/>
-  </xs:complexType>
-
-  <xs:element name="aui-task" type="auiTaskType"/>
-
-  <xs:complexType name="tagsType">
-    <xs:sequence>
-      <xs:element name="tag" type="nonEmptyString" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="parametersType">
-    <xs:sequence>
-      <xs:element name="param" type="paramType" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="paramType">
-    <xs:sequence>
-      <xs:element name="description" type="nonEmptyString"/>
-      <xs:element name="default" type="xs:string" minOccurs="0"/>
-      <xs:element name="pattern" type="xs:string" minOccurs="0"/>
-      <xs:element name="min" type="xs:decimal" minOccurs="0"/>
-      <xs:element name="max" type="xs:decimal" minOccurs="0"/>
-      <xs:element name="separator" type="xs:string" minOccurs="0"/>
-      <xs:element name="example" type="xs:string" minOccurs="0"/>
-      <xs:element name="options" type="optionsType" minOccurs="0"/>
-    </xs:sequence>
-    <xs:attribute name="name" type="queryKeyType" use="required"/>
-    <xs:attribute name="type" type="paramTypeType" use="required"/>
-    <xs:attribute name="required" type="xs:boolean" use="optional" default="false"/>
-  </xs:complexType>
-
-  <xs:complexType name="optionsType">
-    <xs:sequence>
-      <xs:element name="option" type="optionType" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="optionType">
-    <xs:simpleContent>
-      <xs:extension base="nonEmptyString">
-        <xs:attribute name="value" type="nonEmptyString" use="required"/>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-
-  <xs:complexType name="examplesType">
-    <xs:sequence>
-      <xs:element name="example" type="exampleType" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="exampleType">
-    <xs:sequence>
-      <xs:element name="intent" type="nonEmptyString"/>
-      <xs:element name="url" type="xs:anyURI"/>
-    </xs:sequence>
-  </xs:complexType>
-
-</xs:schema>
-```
+- Namespace: `https://agentuseinterface.org/schema/0.1`
+- XSD (normative): `https://agentuseinterface.org/schema/0.1/aui.xsd`
+- Schematron (semantic rules): `https://agentuseinterface.org/schema/0.1/aui.sch`
