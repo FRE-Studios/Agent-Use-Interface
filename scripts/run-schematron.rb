@@ -35,6 +35,7 @@ REXML::XPath.match(schematron, "//sch:ns", sch_ns).each do |ns_decl|
 end
 
 errors = []
+reports = []
 
 REXML::XPath.match(schematron, "//sch:pattern/sch:rule", sch_ns).each do |rule|
   context = rule.attributes["context"]
@@ -47,7 +48,7 @@ REXML::XPath.match(schematron, "//sch:pattern/sch:rule", sch_ns).each do |rule|
 
   REXML::XPath.match(rule, "sch:assert", sch_ns).each do |assertion|
     test = assertion.attributes["test"]
-    message = assertion.text.gsub(/\s+/, " ").strip
+    message = assertion.text.to_s.gsub(/\s+/, " ").strip
 
     context_nodes.each do |node|
       begin
@@ -61,7 +62,26 @@ REXML::XPath.match(schematron, "//sch:pattern/sch:rule", sch_ns).each do |rule|
       errors << "#{xml_path}: Schematron assertion failed: #{message}"
     end
   end
+
+  REXML::XPath.match(rule, "sch:report", sch_ns).each do |report|
+    test = report.attributes["test"]
+    message = report.text.to_s.gsub(/\s+/, " ").strip
+
+    context_nodes.each do |node|
+      begin
+        passed = REXML::XPath.first(node, "boolean(#{test})", rule_ns)
+      rescue StandardError => e
+        errors << "#{schematron_path}: invalid report test `#{test}` (#{e.message})"
+        break
+      end
+      next unless passed
+
+      reports << "#{xml_path}: Schematron report fired: #{message}"
+    end
+  end
 end
+
+reports.each { |report| warn report }
 
 if errors.empty?
   puts "#{xml_path}: Schematron validation passed"
