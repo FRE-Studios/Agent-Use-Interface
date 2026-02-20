@@ -80,7 +80,7 @@
       <tr><td><strong>URL-parameter-scoped</strong></td><td>Only describes tasks driven by query parameters (<code>?key=value</code>). Path-based routing is out of scope.</td></tr>
       <tr><td><strong>Agent-native</strong></td><td>Descriptions, parameter semantics, and examples are written for LLM comprehension, not human documentation.</td></tr>
       <tr><td><strong>Composable</strong></td><td>Each task is self-contained. Agents can use one task or chain several together.</td></tr>
-      <tr><td><strong>Lightweight</strong></td><td>A single XML file with an optional CSS companion. No code generation, no SDKs, no auth flows.</td></tr>
+      <tr><td><strong>Lightweight</strong></td><td>A lightweight XML catalog with optional task detail files and an optional CSS companion. No code generation, no SDKs, no auth flows.</td></tr>
       <tr><td><strong>Universal-link friendly</strong></td><td>Base URLs should be universal links / App Links where possible, so constructed URLs open native app experiences.</td></tr>
       <tr><td><strong>Scalable</strong></td><td>A catalog + detail pattern lets large sites split task definitions across files. Agents load the lightweight catalog first, then fetch only the detail files they need.</td></tr>
       <tr><td><strong>Human-reviewable</strong></td><td>Users can open the file in a browser and understand what tasks an agent will have access to before granting trust.</td></tr>
@@ -133,7 +133,8 @@ AUI: https://example.com/.well-known/aui.xml</code></pre>
 
 <pre><code>Specification: https://agentuseinterface.org/spec/0.1
 Namespace:     https://agentuseinterface.org/schema/0.1
-XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd</code></pre>
+XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd
+Schematron:    https://agentuseinterface.org/schema/0.1/aui.sch</code></pre>
 
   <hr>
 
@@ -169,7 +170,20 @@ XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd</code></pre>
 
   <p>Producers SHOULD validate AUI documents against this schema before publishing.</p>
 
-  <p>Some cross-field rules are normative even when not fully expressible in XSD 1.0 (for example: <code>type="enum"</code> requires <code>&lt;options&gt;</code>). Producers and agents MUST enforce those rules during semantic validation.</p>
+  <p>Some cross-field rules are normative even when not fully expressible in XSD 1.0. Producers and agents MUST enforce these semantic rules:</p>
+
+  <ul>
+    <li>If <code>&lt;task&gt;</code> has no <code>href</code> (inline form), <code>&lt;base-path&gt;</code> and <code>&lt;parameters&gt;</code> MUST be present.</li>
+    <li>If <code>&lt;task&gt;</code> has <code>href</code> (reference form), <code>&lt;base-path&gt;</code>, <code>&lt;parameters&gt;</code>, <code>&lt;examples&gt;</code>, and <code>output</code> MUST be omitted.</li>
+    <li>If <code>&lt;task&gt;</code> has <code>href</code>, the fetched <code>&lt;aui-task&gt;</code> <code>id</code> MUST match the catalog <code>&lt;task&gt;</code> <code>id</code>.</li>
+    <li>If <code>&lt;param type="enum"&gt;</code> is used, <code>&lt;options&gt;</code> MUST be present.</li>
+  </ul>
+
+  <p>A reference Schematron for same-document semantic validation is provided at:</p>
+
+  <pre><code>https://agentuseinterface.org/schema/0.1/aui.sch</code></pre>
+
+  <p>Producers and agents SHOULD validate with both XSD and Schematron when available. Cross-document <code>id</code> matching for referenced detail files MUST be validated at detail-file fetch time.</p>
 
   <h3 id="root-element">4.1 Root Element: <code>&lt;aui&gt;</code></h3>
 
@@ -221,7 +235,7 @@ XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd</code></pre>
     </thead>
     <tbody>
       <tr><td><code>id</code></td><td>string</td><td>Yes</td><td>A unique, stable identifier for this task (kebab-case).</td></tr>
-      <tr><td><code>output</code></td><td>string</td><td>No</td><td>One of: <code>display</code>, <code>background</code>. Defaults to <code>display</code>. <code>background</code> is for low-risk attribution/analytics fetches only.</td></tr>
+      <tr><td><code>output</code></td><td>string</td><td>No</td><td>One of: <code>display</code>, <code>background</code>. Defaults to <code>display</code>. <code>background</code> is for low-risk attribution/analytics fetches only. <strong>Inline form only</strong>; MUST be omitted when <code>href</code> is present.</td></tr>
       <tr><td><code>href</code></td><td>anyURI</td><td>No</td><td>URL of a detail file containing the full task definition (an <code>&lt;aui-task&gt;</code> document). When present, the task is in <strong>reference form</strong>.</td></tr>
     </tbody>
   </table>
@@ -240,7 +254,9 @@ XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd</code></pre>
     </tbody>
   </table>
 
-  <p>When <code>href</code> is present (reference form), <code>&lt;base-path&gt;</code>, <code>&lt;parameters&gt;</code>, and <code>&lt;examples&gt;</code> MUST be omitted. The catalog entry carries only what an agent needs for relevance judgment: name, description, and optionally tags.</p>
+  <p>If <code>href</code> is absent (inline form), <code>&lt;base-path&gt;</code> and <code>&lt;parameters&gt;</code> MUST be present.</p>
+
+  <p>When <code>href</code> is present (reference form), <code>&lt;base-path&gt;</code>, <code>&lt;parameters&gt;</code>, <code>&lt;examples&gt;</code>, and <code>output</code> MUST be omitted. The catalog entry carries only what an agent needs for relevance judgment: name, description, and optionally tags.</p>
 
   <h4 id="inline-vs-reference">4.3.1 Inline vs. Reference Forms</h4>
 
@@ -264,6 +280,8 @@ XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd</code></pre>
 &lt;/task&gt;</code></pre>
 
   <p>A single <code>aui.xml</code> MAY mix both forms — use inline for small tasks and reference for complex ones.</p>
+
+  <p>For reference tasks, <code>output</code> is defined by the detail file's <code>&lt;aui-task&gt;</code> element.</p>
 
   <p><strong>href resolution:</strong></p>
   <ul>
@@ -352,7 +370,7 @@ XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd</code></pre>
     </thead>
     <tbody>
       <tr><td><code>id</code></td><td>string</td><td>Yes</td><td>MUST match the <code>id</code> of the corresponding <code>&lt;task&gt;</code> entry in the catalog.</td></tr>
-      <tr><td><code>output</code></td><td>string</td><td>No</td><td>One of: <code>display</code>, <code>background</code>. Defaults to <code>display</code>.</td></tr>
+      <tr><td><code>output</code></td><td>string</td><td>No</td><td>One of: <code>display</code>, <code>background</code>. Defaults to <code>display</code>. For reference tasks, this value is authoritative.</td></tr>
     </tbody>
   </table>
 
@@ -370,7 +388,7 @@ XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd</code></pre>
     </tbody>
   </table>
 
-  <p>The detail file is <strong>self-contained</strong> — it includes all fields needed to construct URLs without merging data from the catalog. If the catalog and detail file disagree on <code>&lt;name&gt;</code> or <code>&lt;description&gt;</code>, the <strong>detail file is authoritative</strong>.</p>
+  <p>The detail file is <strong>self-contained</strong> — it includes all fields needed to construct URLs without merging data from the catalog. If the catalog and detail file disagree on <code>&lt;name&gt;</code>, <code>&lt;description&gt;</code>, or <code>output</code>, the <strong>detail file is authoritative</strong>. Catalog tasks that use <code>href</code> MUST omit <code>output</code>.</p>
 
   <p>Example detail file:</p>
 
@@ -536,7 +554,7 @@ that agents can construct on behalf of users.
     <li><strong>Fetch detail files on demand.</strong> Only fetch detail files (via <code>href</code>) for tasks the agent judges relevant to the user's current intent. Do not eagerly fetch all detail files.</li>
     <li><strong>Handle detail file failures gracefully.</strong> If a detail file fetch fails (404, timeout, invalid XML), the agent MUST NOT construct URLs for that task and SHOULD inform the user the task is unavailable.</li>
     <li><strong>Support mixed-mode catalogs.</strong> A single <code>aui.xml</code> may contain both inline and reference tasks. Agents MUST handle both forms correctly.</li>
-    <li><strong>Detail file is authoritative.</strong> If a catalog entry's <code>&lt;name&gt;</code> or <code>&lt;description&gt;</code> differs from the detail file, the detail file takes precedence. The <code>id</code> in the detail file MUST match the catalog entry's <code>id</code>.</li>
+    <li><strong>Detail file is authoritative.</strong> If a catalog entry's <code>&lt;name&gt;</code>, <code>&lt;description&gt;</code>, or <code>output</code> differs from the detail file, the detail file takes precedence. Catalog tasks with <code>href</code> MUST omit <code>output</code>, and the <code>id</code> in the detail file MUST match the catalog entry's <code>id</code>.</li>
   </ol>
 
   <hr>

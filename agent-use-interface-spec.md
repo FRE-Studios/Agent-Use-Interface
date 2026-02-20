@@ -31,7 +31,7 @@ AUI uses XML as its document format for the following reasons:
 | **URL-parameter-scoped** | Only describes tasks driven by query parameters (`?key=value`). Path-based routing is out of scope. |
 | **Agent-native** | Descriptions, parameter semantics, and examples are written for LLM comprehension, not human documentation. |
 | **Composable** | Each task is self-contained. Agents can use one task or chain several together. |
-| **Lightweight** | A single XML file with an optional CSS companion. No code generation, no SDKs, no auth flows. |
+| **Lightweight** | A lightweight XML catalog with optional task detail files and an optional CSS companion. No code generation, no SDKs, no auth flows. |
 | **Universal-link friendly** | Base URLs should be universal links / App Links where possible, so constructed URLs open native app experiences. |
 | **Scalable** | A catalog + detail pattern lets large sites split task definitions across files. Agents load the lightweight catalog first, then fetch only the detail files they need. |
 | **Human-reviewable** | Users can open the file in a browser and understand what tasks an agent will have access to before granting trust. |
@@ -93,6 +93,7 @@ Canonical AUI specification assets are published on `agentuseinterface.org`:
 Specification: https://agentuseinterface.org/spec/0.1
 Namespace:     https://agentuseinterface.org/schema/0.1
 XSD:           https://agentuseinterface.org/schema/0.1/aui.xsd
+Schematron:    https://agentuseinterface.org/schema/0.1/aui.sch
 ```
 
 ---
@@ -135,7 +136,21 @@ https://agentuseinterface.org/schema/0.1/aui.xsd
 
 Producers SHOULD validate AUI documents against this schema before publishing.
 
-Some cross-field rules are normative even when not fully expressible in XSD 1.0 (for example: `type="enum"` requires `<options>`). Producers and agents MUST enforce those rules during semantic validation.
+Some cross-field rules are normative even when not fully expressible in XSD 1.0. Producers and agents MUST enforce these semantic rules:
+
+- If `<task>` has no `href` (inline form), `<base-path>` and `<parameters>` MUST be present.
+- If `<task>` has `href` (reference form), `<base-path>`, `<parameters>`, `<examples>`, and `output` MUST be omitted.
+- If `<task>` has `href`, the fetched `<aui-task>` `id` MUST match the catalog `<task>` `id`.
+- If `<param type="enum">` is used, `<options>` MUST be present.
+
+A reference Schematron for same-document semantic validation is provided at:
+
+```
+https://agentuseinterface.org/schema/0.1/aui.sch
+```
+
+Producers and agents SHOULD validate with both XSD and Schematron when available.
+Cross-document `id` matching for referenced detail files MUST be validated at detail-file fetch time.
 
 ### 4.1 Root Element: `<aui>`
 
@@ -169,7 +184,7 @@ A task represents a single URL-parameter-driven action an agent can construct. A
 | Attribute | Type | Required | Description |
 |---|---|---|---|
 | `id` | string | ✅ | A unique, stable identifier for this task (kebab-case). |
-| `output` | string | ❌ | One of: `display`, `background`. Defaults to `display`. `background` is for low-risk attribution/analytics fetches only. |
+| `output` | string | ❌ | One of: `display`, `background`. Defaults to `display`. `background` is for low-risk attribution/analytics fetches only. **Inline form only**; MUST be omitted when `href` is present. |
 | `href` | anyURI | ❌ | URL of a detail file containing the full task definition (an `<aui-task>` document). When present, the task is in **reference form**. |
 
 | Child Element | Type | Inline | Reference | Description |
@@ -181,7 +196,9 @@ A task represents a single URL-parameter-driven action an agent can construct. A
 | `<parameters>` | element | ✅ | ❌ | Container for one or more `<param>` elements. |
 | `<examples>` | element | ❌ | ❌ | Container for `<example>` elements. |
 
-When `href` is present (reference form), `<base-path>`, `<parameters>`, and `<examples>` MUST be omitted. The catalog entry carries only what an agent needs for relevance judgment: name, description, and optionally tags.
+If `href` is absent (inline form), `<base-path>` and `<parameters>` MUST be present.
+
+When `href` is present (reference form), `<base-path>`, `<parameters>`, `<examples>`, and `output` MUST be omitted. The catalog entry carries only what an agent needs for relevance judgment: name, description, and optionally tags.
 
 #### 4.3.1 Inline vs. Reference Forms
 
@@ -209,6 +226,8 @@ When `href` is present (reference form), `<base-path>`, `<parameters>`, and `<ex
 ```
 
 A single `aui.xml` MAY mix both forms — use inline for small tasks and reference for complex ones.
+
+For reference tasks, `output` is defined by the detail file's `<aui-task>` element.
 
 **href resolution:**
 - Relative URLs are resolved against the `aui.xml` location (standard URI resolution).
@@ -269,7 +288,7 @@ When a task uses the reference form (Section 4.3.1), its full definition lives i
 | Attribute | Type | Required | Description |
 |---|---|---|---|
 | `id` | string | ✅ | MUST match the `id` of the corresponding `<task>` entry in the catalog. |
-| `output` | string | ❌ | One of: `display`, `background`. Defaults to `display`. |
+| `output` | string | ❌ | One of: `display`, `background`. Defaults to `display`. For reference tasks, this value is authoritative. |
 
 | Child Element | Type | Required | Description |
 |---|---|---|---|
@@ -280,7 +299,7 @@ When a task uses the reference form (Section 4.3.1), its full definition lives i
 | `<parameters>` | element | ✅ | Container for one or more `<param>` elements. |
 | `<examples>` | element | ❌ | Container for `<example>` elements. |
 
-The detail file is **self-contained** — it includes all fields needed to construct URLs without merging data from the catalog. If the catalog and detail file disagree on `<name>` or `<description>`, the **detail file is authoritative**.
+The detail file is **self-contained** — it includes all fields needed to construct URLs without merging data from the catalog. If the catalog and detail file disagree on `<name>`, `<description>`, or `output`, the **detail file is authoritative**. Catalog tasks that use `href` MUST omit `output`.
 
 Example detail file:
 
@@ -432,7 +451,7 @@ Agents consuming AUI files SHOULD:
 12. **Fetch detail files on demand.** Only fetch detail files (via `href`) for tasks the agent judges relevant to the user's current intent. Do not eagerly fetch all detail files.
 13. **Handle detail file failures gracefully.** If a detail file fetch fails (404, timeout, invalid XML), the agent MUST NOT construct URLs for that task and SHOULD inform the user the task is unavailable.
 14. **Support mixed-mode catalogs.** A single `aui.xml` may contain both inline and reference tasks. Agents MUST handle both forms correctly.
-15. **Detail file is authoritative.** If a catalog entry's `<name>` or `<description>` differs from the detail file, the detail file takes precedence. The `id` in the detail file MUST match the catalog entry's `id`.
+15. **Detail file is authoritative.** If a catalog entry's `<name>`, `<description>`, or `output` differs from the detail file, the detail file takes precedence. Catalog tasks with `href` MUST omit `output`, and the `id` in the detail file MUST match the catalog entry's `id`.
 
 ---
 

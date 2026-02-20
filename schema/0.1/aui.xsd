@@ -118,8 +118,11 @@
       <xs:documentation>
         A task in the catalog. May be inline (full definition) or reference
         (lightweight summary with href pointing to a detail file).
-        When href is present, base-path, parameters, and examples MUST be omitted.
-        This constraint is enforced in prose (Section 4.3.1), not in XSD 1.0.
+        Inline form (no href): base-path and parameters are required.
+        Reference form (has href): base-path, parameters, examples, and output
+        MUST be omitted; output is defined in the detail file.
+        These constraints are enforced via semantic validation (spec + Schematron),
+        not in XSD 1.0.
       </xs:documentation>
     </xs:annotation>
     <xs:all>

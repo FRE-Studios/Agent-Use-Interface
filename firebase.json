@@ -4,6 +4,13 @@
     "cleanUrls": true,
     "headers": [
       {
+        "source": "**/*.sch",
+        "headers": [
+          { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
         "source": "**/*.xsd",
         "headers": [
           { "key": "Content-Type", "value": "application/xml; charset=utf-8" },

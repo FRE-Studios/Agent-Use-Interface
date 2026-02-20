@@ -24,7 +24,7 @@
 
   <!-- What is AUI? -->
   <h2>What is AUI?</h2>
-  <p>AUI is a single XML file, served at <code>/.well-known/aui.xml</code>, that describes URL-parameter-driven actions a site supports. Things like searches, filters, form pre-fills, share intents, and configuration links.</p>
+  <p>AUI is a lightweight XML catalog, served at <code>/.well-known/aui.xml</code>, that describes URL-parameter-driven actions a site supports. Large sites can split full task definitions into optional detail files linked from the catalog. Things like searches, filters, form pre-fills, share intents, and configuration links.</p>
   <p>The same file serves two audiences: <strong>agents</strong> parse the XML structure to understand available tasks and construct URLs, while <strong>humans</strong> can open it in a browser to review what an agent will have access to.</p>
 
   <div class="principles">
@@ -46,7 +46,7 @@
     </div>
     <div class="principle">
       <strong>Lightweight</strong>
-      <p>A single XML file with an optional CSS companion. No SDKs, no auth flows.</p>
+      <p>A lightweight XML catalog with optional task detail files and an optional CSS companion. No SDKs, no auth flows.</p>
     </div>
     <div class="principle">
       <strong>Universal-link friendly</strong>
