@@ -1,0 +1,515 @@
+# Agent Use Interface (AUI) — Authoring Reference
+
+> Use this document to create valid AUI XML files. AUI describes URL-parameter-driven tasks (searches, filters, share intents, config links) as an XML catalog served at `/.well-known/aui.xml`.
+
+## XML Boilerplate
+
+Every `aui.xml` starts with:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="aui.css"?>
+<aui
+  xmlns="https://agentuseinterface.org/schema/0.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://agentuseinterface.org/schema/0.1 https://agentuseinterface.org/schema/0.1/aui.xsd"
+  version="0.1">
+  ...
+</aui>
+```
+
+The `<?xml-stylesheet?>` line is optional. Include it to make the XML human-readable in browsers.
+
+## Element Reference
+
+### `<aui>` (root)
+
+Attributes:
+- `version` (required): Must be `"0.1"`.
+
+Children (all required unless noted):
+- `<name>`: Human-readable service name.
+- `<origin>`: Canonical origin (scheme + host, e.g., `https://shop.example.com`). Must be HTTPS. No trailing slash, no path.
+- `<description>`: What this service does, written for agent comprehension.
+- `<metadata>` (optional): See below.
+- `<tasks>`: Container for `<task>` elements.
+
+### `<metadata>` (optional)
+
+All children optional:
+- `<logo>`: URL to a logo image.
+- `<contact>`: Contact email.
+- `<docs>`: URL to human-readable documentation.
+- `<platforms>`: Container for `<platform>` elements. Values: `ios`, `android`, `web`.
+
+### `<task>`
+
+Two forms: **inline** (full definition) or **reference** (summary + link to detail file).
+
+Attributes:
+- `id` (required): Unique kebab-case identifier. Pattern: `[a-z0-9]+(-[a-z0-9]+)*`
+- `output` (optional, inline only): `display` (default) or `background`. Omit when `href` is present.
+- `href` (optional): URL to a detail file. When present, task is in reference form.
+
+Children:
+- `<name>` (required): Short name.
+- `<description>` (required): What this task does, written for agent comprehension. Describe when to use it and what outcome to expect.
+- `<base-path>` (required for inline, omit for reference): URL path. Must start with `/`, no `?` or `#`. Final URL = `{origin}{base-path}?{params}`.
+- `<tags>` (optional): Container for `<tag>` elements (freeform categorization strings).
+- `<parameters>` (required for inline, omit for reference): Container for `<param>` elements.
+- `<examples>` (optional for inline, omit for reference): Container for `<example>` elements.
+
+### `<param>`
+
+Attributes:
+- `name` (required): Query parameter key as it appears in the URL. Pattern: `[A-Za-z0-9._~-]+`
+- `type` (required): `string`, `number`, `integer`, `boolean`, or `enum`.
+- `required` (optional): `true` or `false` (default `false`).
+
+Children:
+- `<description>` (required): What this parameter represents.
+- `<default>` (optional): Default value if omitted.
+- `<pattern>` (optional): ECMAScript regex the value must match (no delimiters).
+- `<min>` (optional): Minimum value (for `number`/`integer`).
+- `<max>` (optional): Maximum value (for `number`/`integer`).
+- `<separator>` (optional): Delimiter for multi-value params (e.g., `,`).
+- `<example>` (optional): Example value.
+- `<options>` (required when `type="enum"`): Container for `<option>` elements.
+
+### `<option>`
+
+Attributes:
+- `value` (required): The literal value used in the URL.
+
+Text content: Description of when to use this value.
+
+### `<example>` (task-level)
+
+Children:
+- `<intent>` (required): What the user wants, in natural language.
+- `<url>` (required): The fully constructed URL. Use `&amp;` for `&` in XML.
+
+### `<aui-task>` (detail file root)
+
+Used as root element when a task is split into a separate file via `href`. Structurally identical to an inline `<task>` but as a standalone document.
+
+Attributes:
+- `id` (required): Must match the `id` in the catalog's `<task>` entry.
+- `output` (optional): `display` or `background`.
+
+Children: Same as inline `<task>` — `<name>`, `<description>`, `<base-path>`, `<tags>`, `<parameters>`, `<examples>`.
+
+Detail file boilerplate:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<aui-task xmlns="https://agentuseinterface.org/schema/0.1"
+  id="task-id" output="display">
+  ...
+</aui-task>
+```
+
+## Validation Rules
+
+- Inline tasks (no `href`): `<base-path>` and `<parameters>` are required.
+- Reference tasks (has `href`): `<base-path>`, `<parameters>`, `<examples>`, and `output` must be omitted.
+- `<param type="enum">` must include `<options>`.
+- Detail file `id` must match the catalog `<task>` `id`.
+- `<origin>` must match pattern: `https://[^/?#]+(:[0-9]+)?`
+- `<base-path>` must match pattern: `/[^?#]*`
+- Task `id` must match pattern: `[a-z0-9]+(-[a-z0-9]+)*`
+
+## Complete Example
+
+### Catalog (aui.xml)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="aui.css"?>
+<aui
+  xmlns="https://agentuseinterface.org/schema/0.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://agentuseinterface.org/schema/0.1 https://agentuseinterface.org/schema/0.1/aui.xsd"
+  version="0.1">
+
+  <name>Example Shop</name>
+  <origin>https://shop.example.com</origin>
+  <description>
+    An online store for electronics and accessories. Use these tasks to help
+    users search for products, apply filters, share items, and configure wishlists.
+  </description>
+
+  <metadata>
+    <platforms>
+      <platform>ios</platform>
+      <platform>android</platform>
+      <platform>web</platform>
+    </platforms>
+    <contact>aui@example.com</contact>
+    <docs>https://docs.example.com/universal-links</docs>
+  </metadata>
+
+  <tasks>
+
+    <!-- Inline task: full definition here -->
+    <task id="product-search">
+      <name>Search Products</name>
+      <description>
+        Search the product catalog. Use this when a user wants to find, browse,
+        or discover products. The URL opens the search results page with filters
+        pre-applied. On iOS and Android, this opens the native app search experience.
+      </description>
+      <base-path>/search</base-path>
+      <tags>
+        <tag>search</tag>
+        <tag>discovery</tag>
+      </tags>
+
+      <parameters>
+        <param name="q" type="string" required="true">
+          <description>
+            The search query. Should reflect the user's intent in natural
+            product-search terms (e.g., 'wireless earbuds noise cancelling').
+          </description>
+          <example>wireless earbuds</example>
+        </param>
+
+        <param name="category" type="enum">
+          <description>Filter results to a specific product category.</description>
+          <options>
+            <option value="electronics">Phones, tablets, laptops, and other devices.</option>
+            <option value="accessories">Cases, cables, chargers, and add-ons.</option>
+            <option value="audio">Headphones, earbuds, speakers, and microphones.</option>
+            <option value="wearables">Smartwatches, fitness trackers, and AR glasses.</option>
+            <option value="home">Smart home devices, appliances, and IoT.</option>
+          </options>
+        </param>
+
+        <param name="price_min" type="number">
+          <description>Minimum price in USD.</description>
+          <min>0</min>
+        </param>
+
+        <param name="price_max" type="number">
+          <description>Maximum price in USD.</description>
+          <min>0</min>
+        </param>
+
+        <param name="sort" type="enum">
+          <description>How to sort results.</description>
+          <default>relevance</default>
+          <options>
+            <option value="relevance">Best match for the query (default).</option>
+            <option value="price_asc">Cheapest first.</option>
+            <option value="price_desc">Most expensive first.</option>
+            <option value="rating">Highest rated first.</option>
+            <option value="newest">Most recently added.</option>
+          </options>
+        </param>
+
+        <param name="in_stock" type="boolean">
+          <description>Only show items currently in stock.</description>
+          <default>true</default>
+        </param>
+      </parameters>
+
+      <examples>
+        <example>
+          <intent>Find me noise cancelling headphones under $200</intent>
+          <url>https://shop.example.com/search?q=noise+cancelling+headphones&amp;category=audio&amp;price_max=200&amp;sort=rating&amp;in_stock=true</url>
+        </example>
+        <example>
+          <intent>What's new in smart home devices?</intent>
+          <url>https://shop.example.com/search?q=smart+home&amp;category=home&amp;sort=newest&amp;in_stock=true</url>
+        </example>
+      </examples>
+    </task>
+
+    <!-- Inline task with pattern validation -->
+    <task id="share-product">
+      <name>Share Product</name>
+      <description>
+        Generate a shareable link to a specific product. Use this when a user
+        wants to send a product to someone or save it for later.
+      </description>
+      <base-path>/product</base-path>
+      <tags>
+        <tag>share</tag>
+      </tags>
+
+      <parameters>
+        <param name="sku" type="string" required="true">
+          <description>The product SKU.</description>
+          <pattern>^[A-Z0-9\-]{6,20}$</pattern>
+          <example>WH-1000XM5</example>
+        </param>
+
+        <param name="ref" type="string">
+          <description>Attribution source.</description>
+          <default>agent</default>
+        </param>
+      </parameters>
+
+      <examples>
+        <example>
+          <intent>Send me a link to the Sony WH-1000XM5</intent>
+          <url>https://shop.example.com/product?sku=WH-1000XM5&amp;ref=agent</url>
+        </example>
+      </examples>
+    </task>
+
+    <!-- Reference task: details in a separate file -->
+    <task id="configure-wishlist" href="tasks/configure-wishlist.xml">
+      <name>Configure Wishlist View</name>
+      <description>
+        Open the user's wishlist with specific display settings.
+      </description>
+      <tags>
+        <tag>personalization</tag>
+      </tags>
+    </task>
+
+  </tasks>
+</aui>
+```
+
+### Detail File (tasks/configure-wishlist.xml)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<aui-task xmlns="https://agentuseinterface.org/schema/0.1"
+  id="configure-wishlist" output="display">
+
+  <name>Configure Wishlist View</name>
+  <description>
+    Open the user's wishlist with specific display settings.
+  </description>
+  <base-path>/wishlist</base-path>
+  <tags>
+    <tag>personalization</tag>
+  </tags>
+
+  <parameters>
+    <param name="sort" type="enum">
+      <description>How to sort wishlist items.</description>
+      <default>date_added</default>
+      <options>
+        <option value="date_added">Most recently saved first (default).</option>
+        <option value="price_asc">Cheapest first.</option>
+        <option value="price_desc">Most expensive first.</option>
+        <option value="price_drop">Largest price drop first.</option>
+      </options>
+    </param>
+
+    <param name="notify_drops" type="boolean">
+      <description>Enable price drop notifications for all wishlist items.</description>
+      <default>false</default>
+    </param>
+  </parameters>
+
+  <examples>
+    <example>
+      <intent>Show me my wishlist sorted by biggest price drops</intent>
+      <url>https://shop.example.com/wishlist?sort=price_drop&amp;notify_drops=true</url>
+    </example>
+  </examples>
+</aui-task>
+```
+
+## XSD
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="https://agentuseinterface.org/schema/0.1"
+  xmlns="https://agentuseinterface.org/schema/0.1"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+
+  <xs:simpleType name="versionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="0.1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="nonEmptyString">
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="originType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="https://[^/?#]+(:[0-9]+)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="taskIdType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z0-9]+(-[a-z0-9]+)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="outputType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="display"/>
+      <xs:enumeration value="background"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="basePathType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="/[^?#]*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="paramTypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="string"/>
+      <xs:enumeration value="number"/>
+      <xs:enumeration value="integer"/>
+      <xs:enumeration value="boolean"/>
+      <xs:enumeration value="enum"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="queryKeyType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z0-9._~-]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="platformType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ios"/>
+      <xs:enumeration value="android"/>
+      <xs:enumeration value="web"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="aui" type="auiType">
+    <xs:unique name="uniqueTaskId">
+      <xs:selector xpath="task:tasks/task:task" xmlns:task="https://agentuseinterface.org/schema/0.1"/>
+      <xs:field xpath="@id"/>
+    </xs:unique>
+  </xs:element>
+
+  <xs:complexType name="auiType">
+    <xs:all>
+      <xs:element name="origin" type="originType"/>
+      <xs:element name="name" type="nonEmptyString"/>
+      <xs:element name="description" type="nonEmptyString"/>
+      <xs:element name="metadata" type="metadataType" minOccurs="0"/>
+      <xs:element name="tasks" type="tasksType"/>
+    </xs:all>
+    <xs:attribute name="version" type="versionType" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="metadataType">
+    <xs:all>
+      <xs:element name="logo" type="xs:anyURI" minOccurs="0"/>
+      <xs:element name="contact" type="xs:string" minOccurs="0"/>
+      <xs:element name="docs" type="xs:anyURI" minOccurs="0"/>
+      <xs:element name="platforms" type="platformsType" minOccurs="0"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="platformsType">
+    <xs:sequence>
+      <xs:element name="platform" type="platformType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="tasksType">
+    <xs:sequence>
+      <xs:element name="task" type="taskType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="taskType">
+    <xs:all>
+      <xs:element name="name" type="nonEmptyString"/>
+      <xs:element name="description" type="nonEmptyString"/>
+      <xs:element name="base-path" type="basePathType" minOccurs="0"/>
+      <xs:element name="tags" type="tagsType" minOccurs="0"/>
+      <xs:element name="parameters" type="parametersType" minOccurs="0"/>
+      <xs:element name="examples" type="examplesType" minOccurs="0"/>
+    </xs:all>
+    <xs:attribute name="id" type="taskIdType" use="required"/>
+    <xs:attribute name="output" type="outputType" use="optional" default="display"/>
+    <xs:attribute name="href" type="xs:anyURI" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="auiTaskType">
+    <xs:all>
+      <xs:element name="name" type="nonEmptyString"/>
+      <xs:element name="description" type="nonEmptyString"/>
+      <xs:element name="base-path" type="basePathType"/>
+      <xs:element name="tags" type="tagsType" minOccurs="0"/>
+      <xs:element name="parameters" type="parametersType"/>
+      <xs:element name="examples" type="examplesType" minOccurs="0"/>
+    </xs:all>
+    <xs:attribute name="id" type="taskIdType" use="required"/>
+    <xs:attribute name="output" type="outputType" use="optional" default="display"/>
+  </xs:complexType>
+
+  <xs:element name="aui-task" type="auiTaskType"/>
+
+  <xs:complexType name="tagsType">
+    <xs:sequence>
+      <xs:element name="tag" type="nonEmptyString" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="parametersType">
+    <xs:sequence>
+      <xs:element name="param" type="paramType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="paramType">
+    <xs:sequence>
+      <xs:element name="description" type="nonEmptyString"/>
+      <xs:element name="default" type="xs:string" minOccurs="0"/>
+      <xs:element name="pattern" type="xs:string" minOccurs="0"/>
+      <xs:element name="min" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="max" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="separator" type="xs:string" minOccurs="0"/>
+      <xs:element name="example" type="xs:string" minOccurs="0"/>
+      <xs:element name="options" type="optionsType" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="queryKeyType" use="required"/>
+    <xs:attribute name="type" type="paramTypeType" use="required"/>
+    <xs:attribute name="required" type="xs:boolean" use="optional" default="false"/>
+  </xs:complexType>
+
+  <xs:complexType name="optionsType">
+    <xs:sequence>
+      <xs:element name="option" type="optionType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="optionType">
+    <xs:simpleContent>
+      <xs:extension base="nonEmptyString">
+        <xs:attribute name="value" type="nonEmptyString" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="examplesType">
+    <xs:sequence>
+      <xs:element name="example" type="exampleType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="exampleType">
+    <xs:sequence>
+      <xs:element name="intent" type="nonEmptyString"/>
+      <xs:element name="url" type="xs:anyURI"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+```
