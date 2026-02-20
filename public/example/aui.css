@@ -1,0 +1,302 @@
+/*
+ * AUI Reference Stylesheet
+ * Agent Use Interface v0.1
+ *
+ * Purpose: Make aui.xml human-readable in browsers.
+ * Principles: Dead simple. No JS. Readable, not branded.
+ *
+ * Usage: Reference from aui.xml via processing instruction:
+ *   <?xml-stylesheet type="text/css" href="aui.css"?>
+ */
+
+
+/* ── Base ─────────────────────────────────────── */
+
+aui {
+  display: block;
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1.5rem 3rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+
+
+/* ── Service Header ───────────────────────────── */
+
+aui > name {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+aui > origin {
+  display: block;
+  font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+aui > description {
+  display: block;
+  color: #374151;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* ── Metadata ─────────────────────────────────── */
+
+metadata {
+  display: block;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+metadata > * {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+metadata > platforms {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+platform {
+  display: inline-block;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+docs::before   { content: "Docs: ";    font-weight: 600; }
+contact::before { content: "Contact: "; font-weight: 600; }
+
+logo { display: none; }
+
+
+/* ── Tasks Container ──────────────────────────── */
+
+tasks {
+  display: block;
+}
+
+tasks::before {
+  content: "Tasks";
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+
+/* ── Individual Task ──────────────────────────── */
+
+task {
+  display: block;
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+task > name {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+task > description {
+  display: block;
+  color: #4b5563;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+base-path {
+  display: inline-block;
+  font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  background: #f3f4f6;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+
+/* ── Tags ─────────────────────────────────────── */
+
+tags {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+tag {
+  display: inline-block;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+
+/* ── Parameters ───────────────────────────────── */
+
+parameters {
+  display: block;
+  margin-top: 1rem;
+}
+
+parameters::before {
+  content: "Parameters";
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+param {
+  display: block;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: #f9fafb;
+  border-radius: 4px;
+  border-left: 3px solid #d1d5db;
+}
+
+param[required="true"] {
+  border-left-color: #2563eb;
+}
+
+param::before {
+  font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+param > description {
+  display: block;
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin-top: 0.25rem;
+}
+
+param > default,
+param > pattern,
+param > min,
+param > max,
+param > separator,
+param > example {
+  display: inline-block;
+  font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  margin-right: 0.75rem;
+}
+
+param > default::before   { content: "default: ";   font-weight: 600; }
+param > pattern::before   { content: "pattern: ";   font-weight: 600; }
+param > min::before       { content: "min: ";       font-weight: 600; }
+param > max::before       { content: "max: ";       font-weight: 600; }
+param > separator::before { content: "separator: "; font-weight: 600; }
+param > example::before   { content: "example: ";   font-weight: 600; }
+
+
+/* ── Enum Options ─────────────────────────────── */
+
+options {
+  display: block;
+  margin-top: 0.5rem;
+  padding-left: 0.75rem;
+}
+
+option {
+  display: block;
+  font-size: 0.8rem;
+  color: #4b5563;
+  padding: 0.2rem 0;
+}
+
+option::before {
+  font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 600;
+  color: #1f2937;
+  margin-right: 0.5rem;
+}
+
+
+/* ── Examples ─────────────────────────────────── */
+
+examples {
+  display: block;
+  margin-top: 1rem;
+}
+
+examples::before {
+  content: "Examples";
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+example {
+  display: block;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: #f0fdf4;
+  border-radius: 4px;
+  border-left: 3px solid #22c55e;
+}
+
+intent {
+  display: block;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #374151;
+}
+
+intent::before { content: "\201C"; }
+intent::after  { content: "\201D"; }
+
+example > url {
+  display: block;
+  font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  color: #15803d;
+  margin-top: 0.25rem;
+  word-break: break-all;
+}

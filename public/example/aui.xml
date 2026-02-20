@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="aui.css"?>
+<aui
+  xmlns="https://agentuseinterface.org/schema/0.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://agentuseinterface.org/schema/0.1 https://agentuseinterface.org/schema/0.1/aui.xsd"
+  version="0.1">
+
+  <name>Example Shop</name>
+  <origin>https://shop.example.com</origin>
+  <description>
+    An online store for electronics and accessories. Use these tasks to help
+    users search for products, apply filters, share items, and configure wishlists.
+  </description>
+
+  <metadata>
+    <platforms>
+      <platform>ios</platform>
+      <platform>android</platform>
+      <platform>web</platform>
+    </platforms>
+    <contact>aui@example.com</contact>
+    <docs>https://docs.example.com/universal-links</docs>
+  </metadata>
+
+  <tasks>
+
+    <task id="product-search">
+      <name>Search Products</name>
+      <description>
+        Search the product catalog. Use this when a user wants to find, browse,
+        or discover products. The URL opens the search results page with filters
+        pre-applied. On iOS and Android, this opens the native app search experience.
+      </description>
+      <base-path>/search</base-path>
+      <tags>
+        <tag>search</tag>
+        <tag>discovery</tag>
+      </tags>
+
+      <parameters>
+        <param name="q" type="string" required="true">
+          <description>
+            The search query. Should reflect the user's intent in natural
+            product-search terms (e.g., 'wireless earbuds noise cancelling').
+          </description>
+          <example>wireless earbuds</example>
+        </param>
+
+        <param name="category" type="enum">
+          <description>Filter results to a specific product category.</description>
+          <options>
+            <option value="electronics">Phones, tablets, laptops, and other devices.</option>
+            <option value="accessories">Cases, cables, chargers, and add-ons.</option>
+            <option value="audio">Headphones, earbuds, speakers, and microphones.</option>
+            <option value="wearables">Smartwatches, fitness trackers, and AR glasses.</option>
+            <option value="home">Smart home devices, appliances, and IoT.</option>
+          </options>
+        </param>
+
+        <param name="price_min" type="number">
+          <description>Minimum price in USD. Use when the user specifies a budget floor.</description>
+          <min>0</min>
+        </param>
+
+        <param name="price_max" type="number">
+          <description>Maximum price in USD. Use when the user specifies a budget ceiling.</description>
+          <min>0</min>
+        </param>
+
+        <param name="sort" type="enum">
+          <description>How to sort results.</description>
+          <default>relevance</default>
+          <options>
+            <option value="relevance">Best match for the query (default).</option>
+            <option value="price_asc">Cheapest first. Use when user wants deals or is budget-conscious.</option>
+            <option value="price_desc">Most expensive first. Use when user wants premium options.</option>
+            <option value="rating">Highest rated first. Use when user wants the best-reviewed items.</option>
+            <option value="newest">Most recently added. Use when user wants the latest products.</option>
+          </options>
+        </param>
+
+        <param name="in_stock" type="boolean">
+          <description>
+            Only show items currently in stock. Set to true unless the user
+            explicitly wants to see out-of-stock items.
+          </description>
+          <default>true</default>
+        </param>
+      </parameters>
+
+      <examples>
+        <example>
+          <intent>Find me some good noise cancelling headphones under $200</intent>
+          <url>https://shop.example.com/search?q=noise+cancelling+headphones&amp;category=audio&amp;price_max=200&amp;sort=rating&amp;in_stock=true</url>
+        </example>
+        <example>
+          <intent>What's new in smart home devices?</intent>
+          <url>https://shop.example.com/search?q=smart+home&amp;category=home&amp;sort=newest&amp;in_stock=true</url>
+        </example>
+      </examples>
+    </task>
+
+    <task id="share-product">
+      <name>Share Product</name>
+      <description>
+        Generate a shareable link to a specific product. Use this when a user
+        wants to send a product to someone or save it for later. The link opens
+        the product detail page.
+      </description>
+      <base-path>/product</base-path>
+      <tags>
+        <tag>share</tag>
+        <tag>social</tag>
+      </tags>
+
+      <parameters>
+        <param name="sku" type="string" required="true">
+          <description>
+            The product SKU. This must be a known product identifier. If the
+            agent doesn't have the SKU, use the product-search task first.
+          </description>
+          <pattern>^[A-Z0-9\-]{6,20}$</pattern>
+          <example>WH-1000XM5</example>
+        </param>
+
+        <param name="ref" type="string">
+          <description>
+            Attribution source. Set to 'agent' to indicate the link was
+            constructed by an AI agent.
+          </description>
+          <default>agent</default>
+        </param>
+
+        <param name="utm_campaign" type="string">
+          <description>Optional campaign tag for tracking.</description>
+        </param>
+      </parameters>
+
+      <examples>
+        <example>
+          <intent>Send me a link to the Sony WH-1000XM5</intent>
+          <url>https://shop.example.com/product?sku=WH-1000XM5&amp;ref=agent</url>
+        </example>
+      </examples>
+    </task>
+
+    <task id="configure-wishlist">
+      <name>Configure Wishlist View</name>
+      <description>
+        Open the user's wishlist with specific display settings. Use this when
+        a user wants to review their saved items in a particular order or
+        filtered view.
+      </description>
+      <base-path>/wishlist</base-path>
+      <tags>
+        <tag>personalization</tag>
+      </tags>
+
+      <parameters>
+        <param name="sort" type="enum">
+          <description>How to sort wishlist items.</description>
+          <default>date_added</default>
+          <options>
+            <option value="date_added">Most recently saved first (default).</option>
+            <option value="price_asc">Cheapest first.</option>
+            <option value="price_desc">Most expensive first.</option>
+            <option value="price_drop">Largest price drop first. Use when user is bargain hunting.</option>
+          </options>
+        </param>
+
+        <param name="notify_drops" type="boolean">
+          <description>
+            If true, enables price drop notifications for all wishlist items.
+          </description>
+          <default>false</default>
+        </param>
+      </parameters>
+
+      <examples>
+        <example>
+          <intent>Show me my wishlist sorted by biggest price drops</intent>
+          <url>https://shop.example.com/wishlist?sort=price_drop&amp;notify_drops=true</url>
+        </example>
+      </examples>
+    </task>
+
+  </tasks>
+</aui>

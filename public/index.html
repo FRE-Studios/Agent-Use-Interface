@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Use Interface (AUI) — URL-driven tasks for LLM agents</title>
+<meta name="description" content="A lightweight, XML-based schema that enables LLM agents to discover and construct URL-parameter-driven tasks on behalf of users.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Agent Use Interface</h1>
+    <p class="tagline">A lightweight, XML-based schema that enables LLM agents to discover and construct URL-parameter-driven tasks on behalf of users.</p>
+    <span class="version-badge">v0.1 Draft</span>
+    <div class="cta-group">
+      <a href="spec/0.1/index.html" class="cta cta-primary">Read the Spec</a>
+      <a href="https://github.com/FRE-Studios/agent-use-interface" class="cta cta-secondary">GitHub</a>
+    </div>
+  </div>
+
+  <!-- What is AUI? -->
+  <h2>What is AUI?</h2>
+  <p>AUI is a single XML file, served at <code>/.well-known/aui.xml</code>, that describes URL-parameter-driven actions a site supports. Things like searches, filters, form pre-fills, share intents, and configuration links.</p>
+  <p>The same file serves two audiences: <strong>agents</strong> parse the XML structure to understand available tasks and construct URLs, while <strong>humans</strong> can open it in a browser to review what an agent will have access to.</p>
+
+  <div class="principles">
+    <div class="principle">
+      <strong>URL-parameter-scoped</strong>
+      <p>Only describes tasks driven by query parameters. Path-based routing is out of scope.</p>
+    </div>
+    <div class="principle">
+      <strong>Agent-native</strong>
+      <p>Descriptions and semantics are written for LLM comprehension, not human documentation.</p>
+    </div>
+    <div class="principle">
+      <strong>Composable</strong>
+      <p>Each task is self-contained. Agents can use one task or chain several together.</p>
+    </div>
+    <div class="principle">
+      <strong>Lightweight</strong>
+      <p>A single XML file with an optional CSS companion. No SDKs, no auth flows.</p>
+    </div>
+    <div class="principle">
+      <strong>Universal-link friendly</strong>
+      <p>Base URLs should be universal links where possible, opening native app experiences.</p>
+    </div>
+    <div class="principle">
+      <strong>Human-reviewable</strong>
+      <p>Users can open the file in a browser and understand what tasks an agent will access.</p>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <h2>How It Works</h2>
+  <ol class="steps">
+    <li><strong>Publish</strong> — A site serves <code>aui.xml</code> at <code>/.well-known/aui.xml</code>, describing its URL-driven tasks with typed parameters, constraints, and examples.</li>
+    <li><strong>Discover</strong> — An LLM agent finds the file via the site's <code>llms.txt</code> or the well-known path.</li>
+    <li><strong>Parse</strong> — The agent reads the XML to understand available tasks, parameter types, enum options, and validation rules.</li>
+    <li><strong>Construct</strong> — Based on the user's intent, the agent selects a task and builds a URL: <code>{origin}{base-path}?key=value&amp;...</code></li>
+    <li><strong>Present</strong> — The user receives a link that opens the right experience — on the web or in a native app via universal links.</li>
+  </ol>
+
+  <!-- Example -->
+  <h2>Example</h2>
+  <p>A trimmed AUI document for an online store:</p>
+<pre><code>&lt;aui xmlns="https://agentuseinterface.org/schema/0.1" version="0.1"&gt;
+  &lt;name&gt;Example Shop&lt;/name&gt;
+  &lt;origin&gt;https://shop.example.com&lt;/origin&gt;
+  &lt;description&gt;An online electronics store.&lt;/description&gt;
+  &lt;tasks&gt;
+    &lt;task id="product-search"&gt;
+      &lt;name&gt;Search Products&lt;/name&gt;
+      &lt;description&gt;Search the product catalog.&lt;/description&gt;
+      &lt;base-path&gt;/search&lt;/base-path&gt;
+      &lt;parameters&gt;
+        &lt;param name="q" type="string" required="true"&gt;
+          &lt;description&gt;The search query.&lt;/description&gt;
+        &lt;/param&gt;
+        &lt;param name="sort" type="enum"&gt;
+          &lt;description&gt;How to sort results.&lt;/description&gt;
+          &lt;options&gt;
+            &lt;option value="relevance"&gt;Best match.&lt;/option&gt;
+            &lt;option value="price_asc"&gt;Cheapest first.&lt;/option&gt;
+            &lt;option value="rating"&gt;Highest rated.&lt;/option&gt;
+          &lt;/options&gt;
+        &lt;/param&gt;
+      &lt;/parameters&gt;
+    &lt;/task&gt;
+  &lt;/tasks&gt;
+&lt;/aui&gt;</code></pre>
+
+  <div class="demo">
+    <div class="demo-label">Intent to URL</div>
+    <div class="demo-intent">"Find me noise cancelling headphones under $200, highest rated"</div>
+    <div class="demo-arrow">Agent constructs &rarr;</div>
+    <div class="demo-url">https://shop.example.com/search?q=noise+cancelling+headphones&amp;category=audio&amp;price_max=200&amp;sort=rating</div>
+  </div>
+
+  <p>See the <a href="example/aui.xml">full example</a> with three tasks, enum options, validation patterns, and intent-to-URL examples.</p>
+
+  <!-- Schema -->
+  <h2>Schema</h2>
+  <p>The AUI XML namespace is:</p>
+  <pre><code>https://agentuseinterface.org/schema/0.1</code></pre>
+  <p>A normative <a href="schema/0.1/aui.xsd">XML Schema Definition (XSD)</a> is available for validation. Include it in your document:</p>
+<pre><code>&lt;aui
+  xmlns="https://agentuseinterface.org/schema/0.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://agentuseinterface.org/schema/0.1
+    https://agentuseinterface.org/schema/0.1/aui.xsd"
+  version="0.1"&gt;</code></pre>
+
+  <!-- Comparison -->
+  <h2>Comparison</h2>
+  <p>AUI is intentionally narrow. Here's how it relates to other specifications:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Specification</th>
+        <th>Scope</th>
+        <th>AUI Relationship</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>llms.txt</code></td>
+        <td>Site-level agent guidance</td>
+        <td>AUI is discovered via <code>llms.txt</code>.</td>
+      </tr>
+      <tr>
+        <td>OpenAPI</td>
+        <td>Full API description</td>
+        <td>AUI is narrower — URL parameters only, no request bodies, no auth.</td>
+      </tr>
+      <tr>
+        <td>RFC 6570</td>
+        <td>URI template syntax</td>
+        <td>AUI adds semantics (descriptions, types, constraints) on top of the template concept.</td>
+      </tr>
+      <tr>
+        <td>MCP</td>
+        <td>Agent &harr; server tool calls</td>
+        <td>AUI is stateless and URL-only; MCP is for richer, bidirectional interactions.</td>
+      </tr>
+      <tr>
+        <td>AASA / Asset Links</td>
+        <td>App &harr; domain verification</td>
+        <td>AUI complements these by describing <em>how</em> to construct the URLs they verify.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-links">
+      <a href="spec/0.1/index.html">Specification</a>
+      <a href="schema/0.1/aui.xsd">Schema (XSD)</a>
+      <a href="example/aui.xml">Example</a>
+      <a href="https://github.com/FRE-Studios/agent-use-interface">GitHub</a>
+    </div>
+    <p>Spec: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> &middot; Code &amp; website: <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a> &middot; Agent Use Interface v0.1</p>
+  </div>
+
+</div>
+
+</body>
+</html>

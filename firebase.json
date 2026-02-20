@@ -1,0 +1,22 @@
+{
+  "hosting": {
+    "public": "public",
+    "cleanUrls": true,
+    "headers": [
+      {
+        "source": "**/*.xsd",
+        "headers": [
+          { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      },
+      {
+        "source": "**/*.xml",
+        "headers": [
+          { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      }
+    ]
+  }
+}
