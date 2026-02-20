@@ -123,17 +123,6 @@ task[href] {
   background: #f9fafb;
 }
 
-task[href]::after {
-  content: attr(href);
-  display: block;
-  font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e5e7eb;
-}
-
 task[href]::before {
   content: "Reference Task";
   display: inline-block;
@@ -146,6 +135,21 @@ task[href]::before {
   padding: 0.1rem 0.4rem;
   border-radius: 3px;
   margin-bottom: 0.5rem;
+}
+
+task[id]::after {
+  content: "id: " attr(id);
+  display: block;
+  font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+task[id][href]::after {
+  content: "id: " attr(id) "  •  href: " attr(href);
 }
 
 task > name {
@@ -227,10 +231,19 @@ param[required="true"] {
 }
 
 param::before {
+  content: attr(name);
   font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.85rem;
   font-weight: 600;
   color: #1f2937;
+}
+
+param[type]::before {
+  content: attr(name) " (" attr(type) ")";
+}
+
+param[type][required="true"]::before {
+  content: attr(name) " (" attr(type) ", required)";
 }
 
 param > description {
@@ -278,10 +291,10 @@ option {
 }
 
 option::before {
+  content: attr(value) " — ";
   font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
   font-weight: 600;
   color: #1f2937;
-  margin-right: 0.5rem;
 }
 
 
