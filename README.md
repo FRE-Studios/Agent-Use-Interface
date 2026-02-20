@@ -10,7 +10,7 @@ AUI describes **actions that are performed by composing query parameters onto a 
 - **It is not** a path-templating system (use RFC 6570 for that).
 - **It is not** a bidirectional agent protocol (use MCP for that).
 
-AUI is a single XML file, served at `/.well-known/aui.xml`, that both agents and humans can read.
+AUI is a lightweight XML catalog, served at `/.well-known/aui.xml`, that both agents and humans can read. Large sites can split full task definitions into linked detail files.
 
 ## Quick Links
 
@@ -18,6 +18,7 @@ AUI is a single XML file, served at `/.well-known/aui.xml`, that both agents and
 |---|---|
 | Specification | [agentuseinterface.org/spec/0.1](https://agentuseinterface.org/spec/0.1) |
 | XML Schema (XSD) | [agentuseinterface.org/schema/0.1/aui.xsd](https://agentuseinterface.org/schema/0.1/aui.xsd) |
+| Schematron | [agentuseinterface.org/schema/0.1/aui.sch](https://agentuseinterface.org/schema/0.1/aui.sch) |
 | Example | [example/aui.xml](example/aui.xml) |
 | Website | [agentuseinterface.org](https://agentuseinterface.org) |
 
@@ -62,21 +63,37 @@ User says: *"Find me noise cancelling headphones under $200"*
 
 Agent constructs: `https://shop.example.com/search?q=noise+cancelling+headphones&category=audio&price_max=200`
 
+## Validation
+
+Run the same checks used in CI:
+
+```bash
+./scripts/validate.sh
+```
+
+This validates:
+- XSD structure (`schema/0.1/aui.xsd`)
+- Schematron semantic rules (`schema/0.1/aui.sch`)
+- Catalog/detail `id` matching for reference tasks in `example/aui.xml`
+
 ## Repo Structure
 
 ```
 agent-use-interface/
 ├── agent-use-interface-spec.md   # The specification (source of truth)
 ├── schema/0.1/aui.xsd            # Normative XML Schema Definition
+├── schema/0.1/aui.sch            # Semantic validation rules (Schematron)
 ├── example/
 │   ├── aui.xml                    # Full working example
 │   ├── aui.css                    # Reference stylesheet for browser rendering
 │   └── aui-browser-preview.html   # HTML preview of styled XML
+├── scripts/                       # Validation scripts used by CI
 ├── public/                        # Website (agentuseinterface.org)
 │   ├── index.html
 │   ├── style.css
 │   ├── spec/0.1/index.html
 │   ├── schema/0.1/aui.xsd
+│   ├── schema/0.1/aui.sch
 │   └── example/
 └── firebase.json                  # Hosting config
 ```

@@ -4,11 +4,11 @@
 
   <sch:title>Agent Use Interface (AUI) v0.1 Semantic Rules</sch:title>
   <sch:ns prefix="a" uri="https://agentuseinterface.org/schema/0.1"/>
-  <sch:p>
+  <!--
     This Schematron validates same-document semantic rules. Cross-document
     checks (for example, href detail-file id matching) must be validated at
     detail-file fetch time.
-  </sch:p>
+  -->
 
   <sch:pattern id="task-inline-reference-forms">
     <sch:rule context="a:aui/a:tasks/a:task[not(@href)]">
