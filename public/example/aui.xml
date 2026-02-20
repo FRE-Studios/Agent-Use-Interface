@@ -145,44 +145,16 @@
       </examples>
     </task>
 
-    <task id="configure-wishlist">
+    <task id="configure-wishlist" href="tasks/configure-wishlist.xml">
       <name>Configure Wishlist View</name>
       <description>
         Open the user's wishlist with specific display settings. Use this when
         a user wants to review their saved items in a particular order or
         filtered view.
       </description>
-      <base-path>/wishlist</base-path>
       <tags>
         <tag>personalization</tag>
       </tags>
-
-      <parameters>
-        <param name="sort" type="enum">
-          <description>How to sort wishlist items.</description>
-          <default>date_added</default>
-          <options>
-            <option value="date_added">Most recently saved first (default).</option>
-            <option value="price_asc">Cheapest first.</option>
-            <option value="price_desc">Most expensive first.</option>
-            <option value="price_drop">Largest price drop first. Use when user is bargain hunting.</option>
-          </options>
-        </param>
-
-        <param name="notify_drops" type="boolean">
-          <description>
-            If true, enables price drop notifications for all wishlist items.
-          </description>
-          <default>false</default>
-        </param>
-      </parameters>
-
-      <examples>
-        <example>
-          <intent>Show me my wishlist sorted by biggest price drops</intent>
-          <url>https://shop.example.com/wishlist?sort=price_drop&amp;notify_drops=true</url>
-        </example>
-      </examples>
     </task>
 
   </tasks>

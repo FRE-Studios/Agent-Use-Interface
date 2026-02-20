@@ -114,6 +114,35 @@
   </xs:complexType>
 
   <xs:complexType name="taskType">
+    <xs:annotation>
+      <xs:documentation>
+        A task in the catalog. May be inline (full definition) or reference
+        (lightweight summary with href pointing to a detail file).
+        When href is present, base-path, parameters, and examples MUST be omitted.
+        This constraint is enforced in prose (Section 4.3.1), not in XSD 1.0.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="name" type="nonEmptyString"/>
+      <xs:element name="description" type="nonEmptyString"/>
+      <xs:element name="base-path" type="basePathType" minOccurs="0"/>
+      <xs:element name="tags" type="tagsType" minOccurs="0"/>
+      <xs:element name="parameters" type="parametersType" minOccurs="0"/>
+      <xs:element name="examples" type="examplesType" minOccurs="0"/>
+    </xs:all>
+    <xs:attribute name="id" type="taskIdType" use="required"/>
+    <xs:attribute name="output" type="outputType" use="optional" default="display"/>
+    <xs:attribute name="href" type="xs:anyURI" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="auiTaskType">
+    <xs:annotation>
+      <xs:documentation>
+        A standalone task detail file. Used as the root element type for
+        aui-task documents. Unlike taskType, base-path and parameters are
+        required (the detail file is self-contained). No href attribute.
+      </xs:documentation>
+    </xs:annotation>
     <xs:all>
       <xs:element name="name" type="nonEmptyString"/>
       <xs:element name="description" type="nonEmptyString"/>
@@ -125,6 +154,8 @@
     <xs:attribute name="id" type="taskIdType" use="required"/>
     <xs:attribute name="output" type="outputType" use="optional" default="display"/>
   </xs:complexType>
+
+  <xs:element name="aui-task" type="auiTaskType"/>
 
   <xs:complexType name="tagsType">
     <xs:sequence>

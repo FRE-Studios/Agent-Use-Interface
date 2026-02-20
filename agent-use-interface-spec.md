@@ -33,6 +33,7 @@ AUI uses XML as its document format for the following reasons:
 | **Composable** | Each task is self-contained. Agents can use one task or chain several together. |
 | **Lightweight** | A single XML file with an optional CSS companion. No code generation, no SDKs, no auth flows. |
 | **Universal-link friendly** | Base URLs should be universal links / App Links where possible, so constructed URLs open native app experiences. |
+| **Scalable** | A catalog + detail pattern lets large sites split task definitions across files. Agents load the lightweight catalog first, then fetch only the detail files they need. |
 | **Human-reviewable** | Users can open the file in a browser and understand what tasks an agent will have access to before granting trust. |
 
 ---
@@ -51,6 +52,12 @@ An optional CSS stylesheet MAY be served alongside it at:
 
 ```
 https://{domain}/.well-known/aui.css
+```
+
+If the AUI file uses the catalog + detail pattern (see Section 4.3.1), detail files SHOULD be served at:
+
+```
+https://{domain}/.well-known/tasks/{task-id}.xml
 ```
 
 ### 2.2 Reference from llms.txt
@@ -157,21 +164,58 @@ Each `<platform>` element contains one of: `ios`, `android`, `web`.
 
 ### 4.3 `<task>` Element
 
-A task represents a single URL-parameter-driven action an agent can construct.
+A task represents a single URL-parameter-driven action an agent can construct. A `<task>` may appear in **inline form** (full definition) or **reference form** (lightweight summary pointing to a detail file). See Section 4.3.1 for details.
 
 | Attribute | Type | Required | Description |
 |---|---|---|---|
 | `id` | string | ✅ | A unique, stable identifier for this task (kebab-case). |
 | `output` | string | ❌ | One of: `display`, `background`. Defaults to `display`. `background` is for low-risk attribution/analytics fetches only. |
+| `href` | anyURI | ❌ | URL of a detail file containing the full task definition (an `<aui-task>` document). When present, the task is in **reference form**. |
 
-| Child Element | Type | Required | Description |
-|---|---|---|---|
-| `<name>` | string | ✅ | Short human-readable name. |
-| `<description>` | string | ✅ | Natural-language description of what this task does, written for agent comprehension. Should describe **when** an agent should use this task and **what outcome** the user can expect. |
-| `<base-path>` | string | ✅ | The URL path onto which parameters are appended. MUST start with `/` and MUST NOT include `?` or `#`. Full URL: `{origin}{base-path}?{params}`. |
-| `<tags>` | element | ❌ | Container for `<tag>` elements (freeform categorization strings). |
-| `<parameters>` | element | ✅ | Container for one or more `<param>` elements. |
-| `<examples>` | element | ❌ | Container for `<example>` elements. |
+| Child Element | Type | Inline | Reference | Description |
+|---|---|---|---|---|
+| `<name>` | string | ✅ | ✅ | Short human-readable name. |
+| `<description>` | string | ✅ | ✅ | Natural-language description of what this task does, written for agent comprehension. Should describe **when** an agent should use this task and **what outcome** the user can expect. |
+| `<base-path>` | string | ✅ | ❌ | The URL path onto which parameters are appended. MUST start with `/` and MUST NOT include `?` or `#`. Full URL: `{origin}{base-path}?{params}`. |
+| `<tags>` | element | ❌ | ❌ | Container for `<tag>` elements (freeform categorization strings). |
+| `<parameters>` | element | ✅ | ❌ | Container for one or more `<param>` elements. |
+| `<examples>` | element | ❌ | ❌ | Container for `<example>` elements. |
+
+When `href` is present (reference form), `<base-path>`, `<parameters>`, and `<examples>` MUST be omitted. The catalog entry carries only what an agent needs for relevance judgment: name, description, and optionally tags.
+
+#### 4.3.1 Inline vs. Reference Forms
+
+**Inline form** — the task definition is complete within the catalog file:
+
+```xml
+<task id="product-search">
+  <name>Search Products</name>
+  <description>Search the product catalog.</description>
+  <base-path>/search</base-path>
+  <tags><tag>search</tag></tags>
+  <parameters>...</parameters>
+  <examples>...</examples>
+</task>
+```
+
+**Reference form** — the task summary lives in the catalog; full details are in a separate file:
+
+```xml
+<task id="configure-wishlist" href="tasks/configure-wishlist.xml">
+  <name>Configure Wishlist View</name>
+  <description>Open the user's wishlist with specific display settings.</description>
+  <tags><tag>personalization</tag></tags>
+</task>
+```
+
+A single `aui.xml` MAY mix both forms — use inline for small tasks and reference for complex ones.
+
+**href resolution:**
+- Relative URLs are resolved against the `aui.xml` location (standard URI resolution).
+- Absolute URLs are also allowed.
+- Recommended convention: `tasks/{task-id}.xml` relative to `aui.xml`.
+- Detail files SHOULD be same-origin as the `aui.xml` host.
+- Detail files MUST be served with `Content-Type: application/xml` or `text/xml`.
 
 #### Output Modes
 
@@ -218,6 +262,49 @@ The text content of `<option>` is a natural-language description of when to use 
 | `<intent>` | string | ✅ | A natural-language description of what the user wants. Written as something a user might say to an agent. |
 | `<url>` | string | ✅ | The fully constructed URL that fulfills the intent. |
 
+### 4.7 `<aui-task>` Element (Detail File Root)
+
+When a task uses the reference form (Section 4.3.1), its full definition lives in a standalone detail file with `<aui-task>` as the root element. This element is structurally identical to an inline `<task>` but serves as an unambiguous root for standalone documents.
+
+| Attribute | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | ✅ | MUST match the `id` of the corresponding `<task>` entry in the catalog. |
+| `output` | string | ❌ | One of: `display`, `background`. Defaults to `display`. |
+
+| Child Element | Type | Required | Description |
+|---|---|---|---|
+| `<name>` | string | ✅ | Short human-readable name. |
+| `<description>` | string | ✅ | Natural-language description. |
+| `<base-path>` | string | ✅ | The URL path onto which parameters are appended. |
+| `<tags>` | element | ❌ | Container for `<tag>` elements. |
+| `<parameters>` | element | ✅ | Container for one or more `<param>` elements. |
+| `<examples>` | element | ❌ | Container for `<example>` elements. |
+
+The detail file is **self-contained** — it includes all fields needed to construct URLs without merging data from the catalog. If the catalog and detail file disagree on `<name>` or `<description>`, the **detail file is authoritative**.
+
+Example detail file:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../aui.css"?>
+<aui-task xmlns="https://agentuseinterface.org/schema/0.1"
+  id="configure-wishlist" output="display">
+  <name>Configure Wishlist View</name>
+  <description>Open the user's wishlist with specific display settings.</description>
+  <base-path>/wishlist</base-path>
+  <tags><tag>personalization</tag></tags>
+  <parameters>
+    <param name="sort" type="enum">
+      <description>How to sort wishlist items.</description>
+      <options>
+        <option value="date_added">Most recently saved first.</option>
+        <option value="price_drop">Largest price drop first.</option>
+      </options>
+    </param>
+  </parameters>
+</aui-task>
+```
+
 ---
 
 ## 5. URL Construction
@@ -248,7 +335,7 @@ Multi-value parameters using a `<separator>` SHOULD encode the joined value as a
 
 ## 6. Full Example
 
-See the accompanying `aui.xml` file in `example/` for a complete working example of an AUI document with three tasks (product search, share product, configure wishlist).
+See the accompanying `aui.xml` file in `example/` for a complete working example of an AUI document with three tasks (product search, share product, configure wishlist). The example demonstrates both inline and reference forms — two tasks are defined inline, while the configure-wishlist task uses the reference form with its full definition in `tasks/configure-wishlist.xml`.
 
 ---
 
@@ -287,6 +374,18 @@ Since browsers apply CSS to XML elements by tag name, the following selectors ar
 | `tag` | Freeform tags. Style as inline badges. |
 | `metadata` | Service metadata block. Style as a subtle header. |
 | `platform` | Platform indicators. Style as inline badges. |
+
+### 7.4 Reference Tasks and Detail Files
+
+When using the catalog + detail pattern, the CSS SHOULD provide visual differentiation for reference tasks:
+
+| Selector | Purpose |
+|---|---|
+| `task[href]` | Reference task entries. Use a dashed border or distinct background to indicate the task definition lives elsewhere. |
+| `task[href]::after` | Display the `href` value so users can see where the detail file lives. |
+| `aui-task` | Root element of standalone detail files. Mirror the base `aui` styles (font, max-width, margin) so detail files render properly in browsers. |
+
+Detail file selectors (`aui-task > name`, `aui-task > description`, etc.) should mirror their `task` counterparts for consistent rendering.
 
 ---
 
@@ -329,6 +428,11 @@ Agents consuming AUI files SHOULD:
 8. **Attribute agent usage.** If a `ref` or attribution parameter exists, agents SHOULD populate it.
 9. **Disclose background fetches.** Agents SHOULD provide user-visible activity logs or equivalent disclosure for background URL fetches.
 10. **Ignore the CSS.** The `<?xml-stylesheet?>` instruction is for browsers. Agents should parse the XML structure directly.
+11. **Load the catalog first.** When discovering a site's AUI file, read the root `aui.xml` catalog before fetching any detail files. Use task names, descriptions, and tags to judge relevance.
+12. **Fetch detail files on demand.** Only fetch detail files (via `href`) for tasks the agent judges relevant to the user's current intent. Do not eagerly fetch all detail files.
+13. **Handle detail file failures gracefully.** If a detail file fetch fails (404, timeout, invalid XML), the agent MUST NOT construct URLs for that task and SHOULD inform the user the task is unavailable.
+14. **Support mixed-mode catalogs.** A single `aui.xml` may contain both inline and reference tasks. Agents MUST handle both forms correctly.
+15. **Detail file is authoritative.** If a catalog entry's `<name>` or `<description>` differs from the detail file, the detail file takes precedence. The `id` in the detail file MUST match the catalog entry's `id`.
 
 ---
 
@@ -342,6 +446,9 @@ Agents consuming AUI files SHOULD:
 - Agents SHOULD provide clear user-visible disclosure (for example, activity history) when background URLs are fetched.
 - Agents SHOULD NOT construct URLs that include user PII in parameters unless the user has explicitly requested the action.
 - The optional CSS stylesheet MUST NOT contain external resource references beyond fonts. No images, no iframes, no tracking pixels.
+- Detail files referenced via `href` MUST be served over HTTPS.
+- Detail files SHOULD be same-origin as the catalog `aui.xml`. Agents SHOULD warn users before fetching cross-origin detail files.
+- Agents MUST verify that the `id` attribute in the detail file matches the catalog entry. A mismatch indicates a configuration error or potential tampering.
 
 ---
 

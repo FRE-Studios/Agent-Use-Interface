@@ -41,6 +41,10 @@
       <p>Each task is self-contained. Agents can use one task or chain several together.</p>
     </div>
     <div class="principle">
+      <strong>Scalable</strong>
+      <p>A catalog + detail pattern lets large sites split tasks across files. Agents load summaries first, then fetch details on demand.</p>
+    </div>
+    <div class="principle">
       <strong>Lightweight</strong>
       <p>A single XML file with an optional CSS companion. No SDKs, no auth flows.</p>
     </div>
@@ -63,6 +67,8 @@
     <li><strong>Construct</strong> — Based on the user's intent, the agent selects a task and builds a URL: <code>{origin}{base-path}?key=value&amp;...</code></li>
     <li><strong>Present</strong> — The user receives a link that opens the right experience — on the web or in a native app via universal links.</li>
   </ol>
+
+  <p>For large sites with many tasks, AUI supports a <strong>catalog + detail pattern</strong>: the root <code>aui.xml</code> lists all tasks with lightweight summaries, while complex tasks link to separate detail files via an <code>href</code> attribute. Agents read the catalog first, judge relevance, then fetch only the details they need.</p>
 
   <!-- Example -->
   <h2>Example</h2>

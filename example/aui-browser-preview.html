@@ -299,6 +299,35 @@
     margin-right: 0.5rem;
   }
 
+  /* Reference Task */
+  .aui-task-ref {
+    border-style: dashed;
+    background: #f9fafb;
+  }
+
+  .aui-ref-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9333ea;
+    background: #f3e8ff;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-bottom: 0.5rem;
+  }
+
+  .aui-href {
+    display: block;
+    font-family: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
   /* Examples */
   .aui-examples-heading {
     font-size: 0.75rem;
@@ -535,51 +564,19 @@
         </div>
       </div>
 
-      <!-- Task 3: Configure Wishlist -->
-      <div class="aui-task">
+      <!-- Task 3: Configure Wishlist (Reference Form) -->
+      <div class="aui-task aui-task-ref">
+        <div class="aui-ref-badge">Reference Task</div>
         <div class="aui-task-name">Configure Wishlist View</div>
         <div class="aui-task-description">
           Open the user's wishlist with specific display settings. Use this when
           a user wants to review their saved items in a particular order or
           filtered view.
         </div>
-        <div class="aui-base-path">/wishlist</div>
         <div class="aui-tags">
           <span class="aui-tag">personalization</span>
         </div>
-
-        <div class="aui-parameters-heading">Parameters</div>
-
-        <div class="aui-param">
-          <div class="aui-param-header">
-            sort <span class="aui-param-type">enum</span>
-          </div>
-          <div class="aui-param-desc">How to sort wishlist items.</div>
-          <div class="aui-param-detail"><span class="label">default: </span>date_added</div>
-          <div class="aui-options">
-            <div class="aui-option"><span class="aui-option-value">date_added</span> Most recently saved first (default).</div>
-            <div class="aui-option"><span class="aui-option-value">price_asc</span> Cheapest first.</div>
-            <div class="aui-option"><span class="aui-option-value">price_desc</span> Most expensive first.</div>
-            <div class="aui-option"><span class="aui-option-value">price_drop</span> Largest price drop first. Use when user is bargain hunting.</div>
-          </div>
-        </div>
-
-        <div class="aui-param">
-          <div class="aui-param-header">
-            notify_drops <span class="aui-param-type">boolean</span>
-          </div>
-          <div class="aui-param-desc">
-            If true, enables price drop notifications for all wishlist items.
-          </div>
-          <div class="aui-param-detail"><span class="label">default: </span>false</div>
-        </div>
-
-        <div class="aui-examples-heading">Examples</div>
-
-        <div class="aui-example">
-          <div class="aui-intent">&ldquo;Show me my wishlist sorted by biggest price drops&rdquo;</div>
-          <div class="aui-example-url">https://shop.example.com/wishlist?sort=price_drop&amp;notify_drops=true</div>
-        </div>
+        <div class="aui-href">tasks/configure-wishlist.xml</div>
       </div>
 
       <div class="aui-watermark">Agent Use Interface v0.1</div>
