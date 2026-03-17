@@ -63,6 +63,14 @@ User says: *"Find me noise cancelling headphones under $200"*
 
 Agent constructs: `https://shop.example.com/search?q=noise+cancelling+headphones&category=audio&price_max=200`
 
+## In the Wild
+
+Apps and websites using AUI today:
+
+| App | Platform | AUI File |
+|-----|----------|----------|
+| [Habit Tiles](https://habittiles.app) | iOS | [aui.xml](https://habittiles.app/.well-known/aui.xml) |
+
 ## Validation
 
 Run the same checks used in CI:
