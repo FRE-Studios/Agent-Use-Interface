@@ -12,7 +12,7 @@ The **Agent Use Interface (AUI)** is a lightweight, XML-based schema that enable
 
 AUI is intentionally narrow in scope. It describes **actions that are performed by composing query parameters onto a base URL** — things like searches, filters, form pre-fills, share intents, and configuration links. It is **not** a general-purpose API description format (use OpenAPI for that) and it is **not** a path-templating system (use RFC 6570 for that).
 
-AUI is designed to be referenced from a site's `llms.txt` file and served at a well-known path.
+AUI is designed to be referenced from a site's `llms.txt` file and served at a conventional path.
 
 ### 1.1 Why XML?
 
@@ -45,20 +45,22 @@ AUI uses XML as its document format for the following reasons:
 An AUI file MUST be served at:
 
 ```
-https://{domain}/.well-known/aui.xml
+https://{domain}/agents/aui.xml
 ```
 
 An optional CSS stylesheet MAY be served alongside it at:
 
 ```
-https://{domain}/.well-known/aui.css
+https://{domain}/agents/aui.css
 ```
 
 If the AUI file uses the catalog + detail pattern (see Section 4.3.1), detail files SHOULD be served at:
 
 ```
-https://{domain}/.well-known/tasks/{task-id}.xml
+https://{domain}/agents/tasks/{task-id}.xml
 ```
+
+> **Note:** A future version of this specification may move to `/.well-known/aui.xml` by pursuing IANA registration per [RFC 8615](https://www.rfc-editor.org/rfc/rfc8615) once AUI sees sufficient adoption to warrant it.
 
 ### 2.2 Reference from llms.txt
 
@@ -67,7 +69,7 @@ The site's `llms.txt` file SHOULD reference the AUI file:
 ```
 # URL Driven Actions
 This site supports the Agent Use Interface specification.
-AUI: https://example.com/.well-known/aui.xml
+AUI: https://example.com/agents/aui.xml
 ```
 
 ### 2.3 Content Type
@@ -421,7 +423,7 @@ A site's `llms.txt` SHOULD reference the AUI file and provide brief context:
 This site publishes an AUI file describing URL-parameter-driven tasks
 that agents can construct on behalf of users.
 
-- AUI Specification: https://shop.example.com/.well-known/aui.xml
+- AUI Specification: https://shop.example.com/agents/aui.xml
 - Supported platforms: iOS, Android, Web
 - All task URLs are universal links that open native app experiences
   when the app is installed.

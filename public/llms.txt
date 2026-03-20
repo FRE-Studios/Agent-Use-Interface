@@ -1,6 +1,6 @@
 # Agent Use Interface (AUI) — Authoring Reference
 
-> Use this document to create valid AUI XML files. AUI describes URL-parameter-driven tasks (searches, filters, share intents, config links) as an XML catalog served at `/.well-known/aui.xml`.
+> Use this document to create valid AUI XML files. AUI describes URL-parameter-driven tasks (searches, filters, share intents, config links) as an XML catalog served at `/agents/aui.xml`.
 
 ## XML Boilerplate
 

@@ -10,7 +10,7 @@ AUI describes **actions that are performed by composing query parameters onto a 
 - **It is not** a path-templating system (use RFC 6570 for that).
 - **It is not** a bidirectional agent protocol (use MCP for that).
 
-AUI is a lightweight XML catalog, served at `/.well-known/aui.xml`, that both agents and humans can read. Large sites can split full task definitions into linked detail files.
+AUI is a lightweight XML catalog, served at `/agents/aui.xml`, that both agents and humans can read. Large sites can split full task definitions into linked detail files.
 
 ## Quick Links
 
@@ -24,8 +24,8 @@ AUI is a lightweight XML catalog, served at `/.well-known/aui.xml`, that both ag
 
 ## How It Works
 
-1. **Publish** — A site serves `aui.xml` at `/.well-known/aui.xml` describing its URL-driven tasks.
-2. **Discover** — An LLM agent finds the file via `llms.txt` or the well-known path.
+1. **Publish** — A site serves `aui.xml` at `/agents/aui.xml` describing its URL-driven tasks.
+2. **Discover** — An LLM agent finds the file via `llms.txt` or the conventional path.
 3. **Parse** — The agent reads the XML to understand available tasks, parameters, and constraints.
 4. **Construct** — Based on user intent, the agent builds a URL with the right query parameters.
 5. **Present** — The user receives a link that opens the right experience — on web or in a native app.
@@ -69,7 +69,7 @@ Apps and websites using AUI today:
 
 | App | Platform | AUI File |
 |-----|----------|----------|
-| [Habit Tiles](https://habittiles.app) | iOS | [aui.xml](https://habittiles.app/.well-known/aui.xml) |
+| [Habit Tiles](https://habittiles.app) | iOS | [aui.xml](https://habittiles.app/agents/aui.xml) |
 
 ## Validation
 

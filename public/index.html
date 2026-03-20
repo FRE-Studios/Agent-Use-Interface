@@ -24,7 +24,7 @@
 
   <!-- What is AUI? -->
   <h2>What is AUI?</h2>
-  <p>AUI is a lightweight XML catalog, served at <code>/.well-known/aui.xml</code>, that describes URL-parameter-driven actions a site supports. Large sites can split full task definitions into optional detail files linked from the catalog. Things like searches, filters, form pre-fills, share intents, and configuration links.</p>
+  <p>AUI is a lightweight XML catalog, served at <code>/agents/aui.xml</code>, that describes URL-parameter-driven actions a site supports. Large sites can split full task definitions into optional detail files linked from the catalog. Things like searches, filters, form pre-fills, share intents, and configuration links.</p>
   <p>The same file serves two audiences: <strong>agents</strong> parse the XML structure to understand available tasks and construct URLs, while <strong>humans</strong> can open it in a browser to review what an agent will have access to.</p>
 
   <div class="principles">
@@ -61,8 +61,8 @@
   <!-- How It Works -->
   <h2>How It Works</h2>
   <ol class="steps">
-    <li><strong>Publish</strong> — A site serves <code>aui.xml</code> at <code>/.well-known/aui.xml</code>, describing its URL-driven tasks with typed parameters, constraints, and examples.</li>
-    <li><strong>Discover</strong> — An LLM agent finds the file via the site's <code>llms.txt</code> or the well-known path.</li>
+    <li><strong>Publish</strong> — A site serves <code>aui.xml</code> at <code>/agents/aui.xml</code>, describing its URL-driven tasks with typed parameters, constraints, and examples.</li>
+    <li><strong>Discover</strong> — An LLM agent finds the file via the site's <code>llms.txt</code> or the conventional path.</li>
     <li><strong>Parse</strong> — The agent reads the XML to understand available tasks, parameter types, enum options, and validation rules.</li>
     <li><strong>Construct</strong> — Based on the user's intent, the agent selects a task and builds a URL: <code>{origin}{base-path}?key=value&amp;...</code></li>
     <li><strong>Present</strong> — The user receives a link that opens the right experience — on the web or in a native app via universal links.</li>
@@ -116,7 +116,7 @@
     <div class="showcase-item">
       <div><a href="https://habittiles.app" target="_blank" rel="noopener"><strong>Habit Tiles</strong></a> <span class="showcase-platform">iOS</span></div>
       <p>Habit tracking app that helps users build better habits. Tasks: create habits, build routines.</p>
-      <a class="showcase-link" href="https://habittiles.app/.well-known/aui.xml" target="_blank" rel="noopener">View aui.xml &rarr;</a>
+      <a class="showcase-link" href="https://habittiles.app/agents/aui.xml" target="_blank" rel="noopener">View aui.xml &rarr;</a>
     </div>
   </div>
 

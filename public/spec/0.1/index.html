@@ -56,7 +56,7 @@
 
   <p>AUI is intentionally narrow in scope. It describes <strong>actions that are performed by composing query parameters onto a base URL</strong> — things like searches, filters, form pre-fills, share intents, and configuration links. It is <strong>not</strong> a general-purpose API description format (use OpenAPI for that) and it is <strong>not</strong> a path-templating system (use RFC 6570 for that).</p>
 
-  <p>AUI is designed to be referenced from a site's <code>llms.txt</code> file and served at a well-known path.</p>
+  <p>AUI is designed to be referenced from a site's <code>llms.txt</code> file and served at a conventional path.</p>
 
   <h3 id="why-xml">1.1 Why XML?</h3>
 
@@ -96,15 +96,17 @@
 
   <p>An AUI file MUST be served at:</p>
 
-  <pre><code>https://{domain}/.well-known/aui.xml</code></pre>
+  <pre><code>https://{domain}/agents/aui.xml</code></pre>
 
   <p>An optional CSS stylesheet MAY be served alongside it at:</p>
 
-  <pre><code>https://{domain}/.well-known/aui.css</code></pre>
+  <pre><code>https://{domain}/agents/aui.css</code></pre>
 
   <p>If the AUI file uses the catalog + detail pattern (see Section 4.3.1), detail files SHOULD be served at:</p>
 
-  <pre><code>https://{domain}/.well-known/tasks/{task-id}.xml</code></pre>
+  <pre><code>https://{domain}/agents/tasks/{task-id}.xml</code></pre>
+
+  <blockquote><p><strong>Note:</strong> A future version of this specification may move to <code>/.well-known/aui.xml</code> by pursuing IANA registration per <a href="https://www.rfc-editor.org/rfc/rfc8615">RFC 8615</a> once AUI sees sufficient adoption to warrant it.</p></blockquote>
 
   <h3 id="reference-from-llmstxt">2.2 Reference from llms.txt</h3>
 
@@ -112,7 +114,7 @@
 
 <pre><code># URL Driven Actions
 This site supports the Agent Use Interface specification.
-AUI: https://example.com/.well-known/aui.xml</code></pre>
+AUI: https://example.com/agents/aui.xml</code></pre>
 
   <h3 id="content-type">2.3 Content Type</h3>
 
@@ -523,7 +525,7 @@ Schematron:    https://agentuseinterface.org/schema/0.1/aui.sch</code></pre>
 This site publishes an AUI file describing URL-parameter-driven tasks
 that agents can construct on behalf of users.
 
-- AUI Specification: https://shop.example.com/.well-known/aui.xml
+- AUI Specification: https://shop.example.com/agents/aui.xml
 - Supported platforms: iOS, Android, Web
 - All task URLs are universal links that open native app experiences
   when the app is installed.
